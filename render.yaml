@@ -1,0 +1,41 @@
+# Blueprint de Render para desplegar esta landing page personalizable.
+#
+# Uso:
+# 1. Sube este proyecto a un repositorio de GitHub/GitLab.
+# 2. En Render → New → Blueprint → conecta el repositorio.
+# 3. Render detecta este archivo y crea el servicio automáticamente.
+# 4. Completa a mano las variables marcadas con "sync: false" en
+#    Render → tu servicio → Environment (son secretas / propias de
+#    cada cliente, no se guardan en el repositorio).
+#
+# También puedes ignorar este archivo y crear el servicio "a mano" en
+# Render como Web Service (Node), con:
+#   Build Command: npm install && npm run build
+#   Start Command: npm run start
+
+services:
+  - type: web
+    name: landing-page-personalizable
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: CONTACT_EMAIL_USER
+        sync: false
+      - key: CONTACT_EMAIL_PASS
+        sync: false
+      - key: CONTACT_EMAIL_TO
+        sync: false

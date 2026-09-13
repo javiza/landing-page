@@ -59,4 +59,3 @@ Ver [`GUIA-DOMINIO-CL.md`](./GUIA-DOMINIO-CL.md).
 - [Supabase](https://supabase.com) (base de datos, auth, storage)
 - [Tailwind CSS](https://tailwindcss.com)
 - [Framer Motion](https://www.framer.com/motion/) + tsparticles
-# landing-page
