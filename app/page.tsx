@@ -2,6 +2,10 @@ import { createClient } from "../lib/supabase/server";
 import { DEFAULT_SETTINGS, type SiteSettings } from "../types/settings";
 import HomeClient from "./HomeClient";
 
+// Renderiza en cada request: sin esto los cambios guardados en el panel
+// admin no se ven en producción hasta el próximo deploy.
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   let settings: SiteSettings = DEFAULT_SETTINGS;
 

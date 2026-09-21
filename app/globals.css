@@ -1,33 +1,49 @@
 @import "tailwindcss";
 
+/* Tailwind v4 ya no lee tailwind.config.js: sin este @custom-variant,
+   dark: respondía al tema del sistema operativo, no a la clase .dark
+   que pone next-themes en <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Conecta las variables CSS (que layout.tsx llena por request con los
+   valores guardados en Supabase) con utilidades reales de Tailwind:
+   bg-background, text-foreground, bg-brand, bg-card, font-sans. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand-primary);
+  --color-brand-2: var(--brand-secondary);
+  --color-card: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --font-sans: var(--font-site), system-ui, sans-serif;
+}
+
 /* ------------------------------
-   TEMA CLARO
+   VALORES POR DEFECTO (solo se usan en build / si layout.tsx
+   todavía no inyectó los valores reales del panel admin).
+   Todo es color plano: nada de degradados.
 ------------------------------ */
 :root {
   --background: #f5f7fa;
   --foreground: #0f0f0f;
+  --brand-primary: #2563eb;
+  --brand-secondary: #9333ea;
 
   --card-bg: #ffffff;
-  --card-border: #e5e7eb;
+  /* El borde de las tarjetas se calcula a partir del color de texto,
+     así siempre tiene contraste contra el fondo elegido, sin
+     necesitar un campo de color aparte en el panel. */
+  --card-border: color-mix(in srgb, var(--foreground) 14%, transparent);
 }
+
 html {
   scroll-behavior: smooth;
 }
-/* ------------------------------
-   TEMA OSCURO "GALAXY PRO"
------------------------------- */
+
 .dark {
-  --background: radial-gradient(
-      circle at 20% 20%,
-      #1b103d 0%,
-      #0b0722 40%,
-      #03020d 100%
-  );
-
+  --background: #0b0722;
   --foreground: #f0eaff;
-
-  --card-bg: rgba(20, 16, 46, 0.6); /* OSCURO PERO NO ABSOLUTO */
-  --card-border: rgba(129, 99, 255, 0.25);
+  --card-bg: #171233;
 }
 
 /* ------------------------------
@@ -39,10 +55,6 @@ body {
   background-attachment: fixed;
   color: var(--foreground);
   transition: background 0.4s ease, color 0.4s ease;
-}
-
-html {
-  scroll-behavior: smooth;
 }
 
 /* ------------------------------

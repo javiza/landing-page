@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Poppins, Roboto } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { createClient } from "../lib/supabase/server";
 import { DEFAULT_SETTINGS, type SiteSettings } from "../types/settings";
+
+// El home lee configuración desde Supabase (cookies()), así que debe
+// renderizarse en cada request. Sin esto Next lo congela como estático
+// desde el build y los cambios guardados en el panel admin no se ven
+// en producción hasta el próximo deploy.
+export const dynamic = "force-dynamic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +20,28 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// Las 4 opciones del selector de tipografía del panel admin. next/font
+// exige que las fuentes se declaren de forma estática, así que se cargan
+// las cuatro y se elige cuál queda activa vía la variable CSS --font-site.
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "600", "800"],
+});
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
+const FONT_VAR: Record<SiteSettings["font_family"], string> = {
+  geist: "var(--font-geist-sans)",
+  inter: "var(--font-inter)",
+  poppins: "var(--font-poppins)",
+  roboto: "var(--font-roboto)",
+};
 
 // Configura esta variable de entorno (NEXT_PUBLIC_SITE_URL) con el dominio
 // final de cada sitio que se arriende. Si no está definida, se usa un
@@ -117,10 +145,36 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     sameAs: [settings.github_url, settings.linkedin_url].filter(Boolean),
   };
 
+  // Colores, tipografía y color de texto guardados en Supabase, aplicados
+  // como variables CSS en :root/.dark para que globals.css (vía
+  // @theme inline) los convierta en utilidades reales: bg-background,
+  // text-foreground, bg-card, bg-brand, font-sans. Van en un <style> del
+  // <head> porque body, que pinta el fondo, es ancestro del contenido.
+  // Todo es color plano; el fondo de las tarjetas (--card-bg) es propio,
+  // independiente del fondo de página.
+  const cssVars = `
+    :root {
+      --background: ${settings.background_light};
+      --foreground: ${settings.text_color_light};
+      --brand-primary: ${settings.primary_color};
+      --brand-secondary: ${settings.secondary_color};
+      --card-bg: ${settings.card_bg_light};
+      --font-site: ${FONT_VAR[settings.font_family] ?? FONT_VAR.geist};
+    }
+    .dark {
+      --background: ${settings.background_dark};
+      --foreground: ${settings.text_color_dark};
+      --card-bg: ${settings.card_bg_dark};
+    }
+  `;
+
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: cssVars }} />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${roboto.variable} antialiased`}
       >
         <script
           type="application/ld+json"

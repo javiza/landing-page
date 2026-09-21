@@ -81,6 +81,52 @@ alter table site_settings add column if not exists projects_items jsonb default 
 
 alter table site_settings add column if not exists contact_title text default 'Contacto:';
 
+-- 1.2) Fondo de tarjetas/módulos y color de texto, por tema.
+alter table site_settings add column if not exists card_bg_light text default '#ffffff';
+alter table site_settings add column if not exists card_bg_dark text default '#171233';
+alter table site_settings add column if not exists text_color_light text default '#0f0f0f';
+alter table site_settings add column if not exists text_color_dark text default '#f0eaff';
+
+-- 1.3) Botones: TODOS los botones sólidos del sitio comparten estas 3 columnas.
+alter table site_settings add column if not exists button_bg_color text default '#2563eb';
+alter table site_settings add column if not exists button_text_color text default '#ffffff';
+alter table site_settings add column if not exists button_shape text default 'full';
+
+-- 1.4) Color del texto del efecto de líneas del hero.
+alter table site_settings add column if not exists hero_terminal_text_color text default '#22c55e';
+
+-- 1.5) Fondos opcionales adicionales a las partículas (imagen del hero e
+-- imagen de toda la página). Son independientes entre sí y de "enable_effects".
+alter table site_settings add column if not exists hero_bg_image_url text default '';
+alter table site_settings add column if not exists hero_bg_overlay_opacity numeric default 0.55;
+alter table site_settings add column if not exists page_bg_image_url text default '';
+alter table site_settings add column if not exists page_bg_image_opacity numeric default 0.35;
+
+-- 1.6) Tamaño del logo (ancho en px) y colores del footer (fondo y texto).
+alter table site_settings add column if not exists logo_width integer default 280;
+alter table site_settings add column if not exists footer_bg_color text default '#111827';
+alter table site_settings add column if not exists footer_text_color text default '#e5e7eb';
+
+-- 1.7) Títulos de sección editables desde el panel.
+alter table site_settings add column if not exists about_section_title text default 'Sobre mí';
+alter table site_settings add column if not exists news_title text default 'Noticias';
+
+-- 1.8) Secciones personalizadas (título + texto libre), alineación de cada
+-- sección (izquierda / centro / derecha) y orden del home.
+alter table site_settings add column if not exists custom_sections jsonb default '[]';
+alter table site_settings add column if not exists section_align jsonb default '{}';
+alter table site_settings alter column section_order
+  set default '["about","services","stack","banner","news","projects","contact"]';
+
+-- 1.9) Recuadros destacados de "Sobre mí": antes era UNA sola frase
+-- (about_highlight), ahora es una lista (about_highlights). Si ya habías
+-- escrito una frase, se copia como primer recuadro. Seguro de re-ejecutar.
+alter table site_settings add column if not exists about_highlights jsonb default '[]';
+update site_settings
+set about_highlights = jsonb_build_array(about_highlight)
+where coalesce(about_highlight, '') <> ''
+  and (about_highlights is null or about_highlights = '[]'::jsonb);
+
 -- Nota: si tu base de datos venía de una versión anterior con la sección
 -- "Ciberseguridad", las columnas security_title / security_items /
 -- show_security pueden seguir existiendo con datos antiguos. Ya no se usan
