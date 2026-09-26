@@ -109,6 +109,12 @@ alter table site_settings add column if not exists logo_width integer default 28
 alter table site_settings add column if not exists footer_bg_color text default '#111827';
 alter table site_settings add column if not exists footer_text_color text default '#e5e7eb';
 
+-- 1.6.1) Datos de contacto del footer (email/teléfono) y mini-enlaces
+-- automáticos a cada sección visible del home.
+alter table site_settings add column if not exists footer_email text default '';
+alter table site_settings add column if not exists footer_phone text default '';
+alter table site_settings add column if not exists footer_show_section_links boolean default true;
+
 -- 1.7) Títulos de sección editables desde el panel.
 alter table site_settings add column if not exists about_section_title text default 'Sobre mí';
 alter table site_settings add column if not exists news_title text default 'Noticias';
