@@ -1,4 +1,4 @@
-export type SkillItem = { name: string; icon: string };
+export type SkillItem = { name: string; icon: string; custom_image_url?: string };
 export type StackFact = { label: string; value: string };
 export type ServiceItem = { title: string; description: string };
 export type ProjectItem = {

@@ -226,65 +226,359 @@ export function ServiceItemsEditor({
   );
 }
 
-/* ---------------- Lista de habilidades con ícono (Stack / Seguridad) ---------------- */
+/* ---------------- Editor de logo (zoom / rotación / fondo) ----------------
+   Modal simple para ajustar un logo recién subido o pegado por URL antes
+   de guardarlo: acercar/alejar, rotar de a 90° y elegir un fondo (útil
+   para logos con fondo blanco que necesitan verse bien en modo oscuro,
+   por ejemplo). El resultado se "aplana" a una imagen cuadrada nueva. */
+function LogoEditorModal({
+  src,
+  onCancel,
+  onSave,
+}: {
+  src: string;
+  onCancel: () => void;
+  onSave: (dataUrl: string) => void;
+}) {
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [bg, setBg] = useState<"transparent" | "white" | "custom">("transparent");
+  const [customBg, setCustomBg] = useState("#ffffff");
+  const [error, setError] = useState<string | null>(null);
+
+  function handleSave() {
+    setError(null);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const size = 320;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      if (bg === "white") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, size, size);
+      } else if (bg === "custom") {
+        ctx.fillStyle = customBg;
+        ctx.fillRect(0, 0, size, size);
+      }
+
+      ctx.save();
+      ctx.translate(size / 2, size / 2);
+      ctx.rotate((rotation * Math.PI) / 180);
+      const scale = zoom;
+      const ratio = Math.min(size / img.width, size / img.height) * scale;
+      const w = img.width * ratio;
+      const h = img.height * ratio;
+      ctx.drawImage(img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+
+      try {
+        onSave(canvas.toDataURL("image/png"));
+      } catch {
+        setError(
+          "No se pudo editar esta imagen porque viene de otro sitio (restricción del navegador). Descárgala y súbela desde tu dispositivo para poder editarla."
+        );
+      }
+    };
+    img.onerror = () => setError("No se pudo cargar la imagen para editarla.");
+    img.src = src;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-[#160f33] rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl">
+        <h3 className="font-semibold">Editar logo</h3>
+
+        <div
+          className="w-full aspect-square rounded-xl border border-gray-200 dark:border-purple-700/40 flex items-center justify-center overflow-hidden"
+          style={{
+            backgroundColor:
+              bg === "white" ? "#ffffff" : bg === "custom" ? customBg : "transparent",
+            backgroundImage:
+              bg === "transparent"
+                ? "repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 0 0/16px 16px"
+                : undefined,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt="Vista previa del logo"
+            style={{
+              transform: `scale(${zoom}) rotate(${rotation}deg)`,
+              maxWidth: "80%",
+              maxHeight: "80%",
+              objectFit: "contain",
+              transition: "transform 0.15s",
+            }}
+          />
+        </div>
+
+        <FieldRow label={`Zoom (${Math.round(zoom * 100)}%)`}>
+          <input
+            type="range"
+            min={0.5}
+            max={2}
+            step={0.05}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+            className="w-full"
+          />
+        </FieldRow>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setRotation((r) => (r - 90 + 360) % 360)}
+            className="text-xs px-3 py-2 rounded-lg border border-gray-300 dark:border-purple-700/50 hover:bg-gray-100 dark:hover:bg-white/5 transition"
+          >
+            ⟲ Rotar
+          </button>
+          <button
+            type="button"
+            onClick={() => setRotation((r) => (r + 90) % 360)}
+            className="text-xs px-3 py-2 rounded-lg border border-gray-300 dark:border-purple-700/50 hover:bg-gray-100 dark:hover:bg-white/5 transition"
+          >
+            ⟳ Rotar
+          </button>
+        </div>
+
+        <FieldRow label="Fondo del logo">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setBg("transparent")}
+              className={`text-xs px-3 py-2 rounded-lg border transition ${bg === "transparent" ? "border-blue-500 bg-blue-500/10" : "border-gray-300 dark:border-purple-700/50"}`}
+            >
+              Transparente
+            </button>
+            <button
+              type="button"
+              onClick={() => setBg("white")}
+              className={`text-xs px-3 py-2 rounded-lg border transition ${bg === "white" ? "border-blue-500 bg-blue-500/10" : "border-gray-300 dark:border-purple-700/50"}`}
+            >
+              Blanco
+            </button>
+            <button
+              type="button"
+              onClick={() => setBg("custom")}
+              className={`text-xs px-3 py-2 rounded-lg border transition ${bg === "custom" ? "border-blue-500 bg-blue-500/10" : "border-gray-300 dark:border-purple-700/50"}`}
+            >
+              Color
+            </button>
+            {bg === "custom" && (
+              <input
+                type="color"
+                value={customBg}
+                onChange={(e) => setCustomBg(e.target.value)}
+                className="w-9 h-9 cursor-pointer"
+              />
+            )}
+          </div>
+        </FieldRow>
+
+        {error && <p className="text-xs text-red-500">{error}</p>}
+
+        <div className="flex justify-end gap-2 pt-1">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-sm px-4 py-2 rounded-full border border-gray-300 dark:border-purple-700/50 hover:bg-gray-100 dark:hover:bg-white/5 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="text-sm px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition"
+          >
+            Guardar logo
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Lista de habilidades con ícono (Stack / Seguridad) ----------------
+   Cada habilidad usa, por defecto, uno de los íconos predefinidos. Si el
+   que se necesita no está en la lista, se puede en su lugar subir un
+   logo propio desde el dispositivo, pegar el link de una imagen, y
+   ajustarlo (zoom / rotación / fondo) con un editor simple antes de
+   guardarlo. */
 export function SkillItemsEditor({
   items,
   onChange,
+  uploadImage,
+  uploading,
 }: {
   items: SkillItem[];
   onChange: (next: SkillItem[]) => void;
+  uploadImage?: (file: File, label: string) => Promise<string | null>;
+  uploading?: string | null;
 }) {
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [urlDraft, setUrlDraft] = useState<Record<number, string>>({});
+
+  function updateItem(i: number, patch: Partial<SkillItem>) {
+    const next = [...items];
+    next[i] = { ...next[i], ...patch };
+    onChange(next);
+  }
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 border border-gray-200 dark:border-purple-700/40 rounded-xl p-3 bg-gray-50/60 dark:bg-white/[0.03]"
-          >
-            <div className="text-xl text-blue-600 dark:text-purple-300 shrink-0">
-              {getIcon(item.icon)}
+        {items.map((item, i) => {
+          const uploadKey = `skill_logo_${i}`;
+          return (
+            <div
+              key={i}
+              className="flex flex-col gap-2 border border-gray-200 dark:border-purple-700/40 rounded-xl p-3 bg-gray-50/60 dark:bg-white/[0.03]"
+            >
+              <div className="flex items-center gap-2">
+                <div className="text-xl text-blue-600 dark:text-purple-300 shrink-0 w-7 h-7 flex items-center justify-center">
+                  {item.custom_image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.custom_image_url}
+                      alt={item.name || "Logo"}
+                      className="w-7 h-7 object-contain"
+                    />
+                  ) : (
+                    getIcon(item.icon)
+                  )}
+                </div>
+                <select
+                  value={item.icon}
+                  onChange={(e) => updateItem(i, { icon: e.target.value })}
+                  className={inputClass + " w-28 shrink-0"}
+                  disabled={Boolean(item.custom_image_url)}
+                  title={
+                    item.custom_image_url
+                      ? "Quita el logo personalizado para volver a elegir un ícono"
+                      : undefined
+                  }
+                >
+                  {ICON_OPTIONS.map((opt) => (
+                    <option key={opt.key} value={opt.key}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={item.name}
+                  onChange={(e) => updateItem(i, { name: e.target.value })}
+                  placeholder="Nombre (ej: Docker)"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() => onChange(items.filter((_, idx) => idx !== i))}
+                  className="text-red-500 shrink-0"
+                  aria-label="Eliminar"
+                >
+                  <FaTrash size={13} />
+                </button>
+              </div>
+
+              {/* ¿No está el ícono que buscas? Logo propio (subido, por
+                  link, o editado) */}
+              {!item.custom_image_url ? (
+                <div className="space-y-1.5 pt-1 border-t border-gray-200 dark:border-purple-700/30">
+                  <p className="text-[11px] text-foreground/60">
+                    ¿No está el ícono que buscas? Usa tu propio logo:
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {uploadImage && (
+                      <>
+                        <label
+                          htmlFor={`skill-logo-input-${i}`}
+                          className={`flex items-center justify-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg border-2 border-dashed cursor-pointer transition ${
+                            uploading === uploadKey
+                              ? "border-gray-300 dark:border-purple-700/40 opacity-60 cursor-wait"
+                              : "border-blue-400 dark:border-purple-500/60 text-blue-600 dark:text-purple-300 hover:bg-blue-50 dark:hover:bg-white/5"
+                          }`}
+                        >
+                          <FaUpload size={9} />
+                          {uploading === uploadKey ? "Subiendo..." : "Subir logo"}
+                        </label>
+                        <input
+                          id={`skill-logo-input-${i}`}
+                          type="file"
+                          accept="image/*"
+                          disabled={uploading === uploadKey}
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const url = await uploadImage(file, uploadKey);
+                            if (url) updateItem(i, { custom_image_url: url });
+                            e.target.value = "";
+                          }}
+                        />
+                      </>
+                    )}
+                    <input
+                      value={urlDraft[i] ?? ""}
+                      onChange={(e) => setUrlDraft((d) => ({ ...d, [i]: e.target.value }))}
+                      placeholder="...o pega una URL de imagen"
+                      className={inputClass + " flex-1 min-w-[9rem] text-xs py-1.5"}
+                    />
+                    <button
+                      type="button"
+                      disabled={!urlDraft[i]}
+                      onClick={() => {
+                        updateItem(i, { custom_image_url: urlDraft[i] });
+                        setUrlDraft((d) => ({ ...d, [i]: "" }));
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-gray-300 dark:border-purple-700/50 hover:bg-gray-100 dark:hover:bg-white/5 transition disabled:opacity-40"
+                    >
+                      Usar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 pt-1 border-t border-gray-200 dark:border-purple-700/30">
+                  <button
+                    type="button"
+                    onClick={() => setEditingIndex(i)}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-gray-300 dark:border-purple-700/50 hover:bg-gray-100 dark:hover:bg-white/5 transition"
+                  >
+                    ✏️ Editar logo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateItem(i, { custom_image_url: "" })}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-red-300 text-red-500 hover:bg-red-500 hover:text-white transition"
+                  >
+                    Quitar logo
+                  </button>
+                </div>
+              )}
             </div>
-            <select
-              value={item.icon}
-              onChange={(e) => {
-                const next = [...items];
-                next[i] = { ...next[i], icon: e.target.value };
-                onChange(next);
-              }}
-              className={inputClass + " w-32 shrink-0"}
-            >
-              {ICON_OPTIONS.map((opt) => (
-                <option key={opt.key} value={opt.key}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <input
-              value={item.name}
-              onChange={(e) => {
-                const next = [...items];
-                next[i] = { ...next[i], name: e.target.value };
-                onChange(next);
-              }}
-              placeholder="Nombre (ej: Docker)"
-              className={inputClass}
-            />
-            <button
-              type="button"
-              onClick={() => onChange(items.filter((_, idx) => idx !== i))}
-              className="text-red-500 shrink-0"
-              aria-label="Eliminar"
-            >
-              <FaTrash size={13} />
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <AddButton
         onClick={() => onChange([...items, { name: "", icon: "code" }])}
         label="Agregar habilidad"
       />
+
+      {editingIndex !== null && items[editingIndex]?.custom_image_url && (
+        <LogoEditorModal
+          src={items[editingIndex].custom_image_url as string}
+          onCancel={() => setEditingIndex(null)}
+          onSave={(dataUrl) => {
+            updateItem(editingIndex, { custom_image_url: dataUrl });
+            setEditingIndex(null);
+          }}
+        />
+      )}
     </div>
   );
 }

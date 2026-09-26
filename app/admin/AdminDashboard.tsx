@@ -92,10 +92,23 @@ const TABS = [
   { key: "banner", label: "Banner / Slider", icon: <FaImages /> },
   { key: "news", label: "Noticias", icon: <FaNewspaper /> },
   { key: "contact", label: "Contacto y Footer", icon: <FaEnvelope /> },
-  { key: "order", label: "Secciones y orden", icon: <FaListOl /> },
+  { key: "order", label: "Orden de secciones", icon: <FaListOl /> },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
+
+// El botón de cada pestaña debe mostrar el nombre ACTUAL de la sección
+// (el que el administrador haya editado en su tab o en "Orden de
+// secciones"), no la etiqueta fija de arriba. Para las pestañas que
+// tienen un campo de título editable (about, services, stack, projects,
+// news, contact) se usa ese valor; para el resto (identidad, fondos,
+// portada, banner, orden) se mantiene la etiqueta fija de TABS.
+function getTabLabel(tab: (typeof TABS)[number], settings: SiteSettings): string {
+  const field = SECTION_TITLE_FIELD[tab.key as BuiltinSectionKey];
+  if (!field) return tab.label;
+  const value = settings[field];
+  return typeof value === "string" && value.trim() ? value : tab.label;
+}
 
 export default function AdminDashboard({
   initialSettings,
@@ -355,7 +368,7 @@ export default function AdminDashboard({
                   }`}
                 >
                   <span className="text-base">{tab.icon}</span>
-                  {tab.label}
+                  {getTabLabel(tab, settings)}
                 </button>
               ))}
             </div>
@@ -1005,7 +1018,7 @@ export default function AdminDashboard({
                   checked={settings.show_about}
                   onChange={(e) => set("show_about", e.target.checked)}
                 />
-                Mostrar sección &quot;Sobre mí&quot;
+                Mostrar sección &quot;{settings.about_section_title || "Sobre mí"}&quot;
               </label>
 
               <FieldRow label="Nombre de la sección (como aparece en el home)">
@@ -1123,7 +1136,7 @@ export default function AdminDashboard({
                   checked={settings.show_services}
                   onChange={(e) => set("show_services", e.target.checked)}
                 />
-                Mostrar sección &quot;Servicios&quot;
+                Mostrar sección &quot;{settings.services_title || "Servicios"}&quot;
               </label>
               <FieldRow label="Título de la sección">
                 <input
@@ -1173,7 +1186,7 @@ export default function AdminDashboard({
                   checked={settings.show_stack}
                   onChange={(e) => set("show_stack", e.target.checked)}
                 />
-                Mostrar sección &quot;Habilidades y Especialidades&quot;
+                Mostrar sección &quot;{settings.stack_title || "Habilidades y Especialidades"}&quot;
               </label>
               <FieldRow label="Título de la sección">
                 <input
@@ -1186,6 +1199,8 @@ export default function AdminDashboard({
                 <SkillItemsEditor
                   items={settings.stack_items}
                   onChange={(next) => set("stack_items", next)}
+                  uploadImage={uploadImage}
+                  uploading={uploading}
                 />
               </FieldRow>
               <FieldRow label="Color de los íconos (independiente del color Título)">
@@ -1213,7 +1228,7 @@ export default function AdminDashboard({
                   checked={settings.show_projects}
                   onChange={(e) => set("show_projects", e.target.checked)}
                 />
-                Mostrar sección &quot;Proyectos&quot;
+                Mostrar sección &quot;{settings.projects_title || "Proyectos"}&quot;
               </label>
               <FieldRow label="Título de la sección">
                 <input
@@ -1315,7 +1330,7 @@ export default function AdminDashboard({
                   checked={settings.show_news}
                   onChange={(e) => set("show_news", e.target.checked)}
                 />
-                Mostrar sección de noticias
+                Mostrar sección &quot;{settings.news_title || "Noticias"}&quot;
               </label>
 
               <FieldRow label="Nombre de la sección (como aparece en el home)">
@@ -1388,7 +1403,7 @@ export default function AdminDashboard({
                     checked={settings.show_contact}
                     onChange={(e) => set("show_contact", e.target.checked)}
                   />
-                  Mostrar sección &quot;Contacto&quot;
+                  Mostrar sección &quot;{settings.contact_title || "Contacto"}&quot;
                 </label>
                 <FieldRow label="Título de la sección">
                   <input
@@ -1443,7 +1458,7 @@ export default function AdminDashboard({
 
           {activeTab === "order" && (
             <section className="card space-y-4">
-              <h2 className="text-xl font-bold">📑 Secciones y orden del Home</h2>
+              <h2 className="text-xl font-bold">📑 Orden de secciones del Home</h2>
               <p className="text-sm text-gray-500">
                 Acá está TODO lo que puede aparecer en el home: cambia el orden con las
                 flechas (o muévela directo al principio/final), elige si va alineada a

@@ -7,9 +7,16 @@ import { useEffect, useState, type ReactNode } from "react";
 import { FaLink } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import { DEFAULT_SETTINGS, type SiteSettings } from "../types/settings";
 import { getIcon } from "../lib/icons";
 import { FONT_VAR } from "../lib/fonts";
+import {
+  LANG_STORAGE_KEY,
+  detectDefaultLanguage,
+  translate,
+  type LangCode,
+} from "../lib/i18n";
 
 // Tipografía del título principal (nombre del sitio en la portada): si el
 // admin la dejó en "inherit" no se fuerza nada acá (el título sigue
@@ -78,11 +85,13 @@ function AnimatedBanner({
   fx,
   accentColor,
   radius,
+  labels,
 }: {
   images: { url: string; caption?: string }[];
   fx: boolean;
   accentColor: string;
   radius: string;
+  labels: { prev: string; next: string; goTo: string };
 }) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -175,14 +184,14 @@ function AnimatedBanner({
           <>
             <button
               onClick={() => goTo(index - 1)}
-              aria-label="Imagen anterior"
+              aria-label={labels.prev}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition text-lg"
             >
               ‹
             </button>
             <button
               onClick={() => goTo(index + 1)}
-              aria-label="Imagen siguiente"
+              aria-label={labels.next}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition text-lg"
             >
               ›
@@ -197,7 +206,7 @@ function AnimatedBanner({
             <button
               key={i}
               onClick={() => goTo(i)}
-              aria-label={`Ir a la imagen ${i + 1}`}
+              aria-label={`${labels.goTo} ${i + 1}`}
               className="h-2.5 rounded-full transition-all"
               style={{
                 width: i === index ? "1.75rem" : "0.625rem",
@@ -214,6 +223,36 @@ function AnimatedBanner({
 export default function HomeClient({ settings }: { settings: SiteSettings }) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const fx = settings.enable_effects;
+
+  // Idioma del visitante: se detecta según el idioma del navegador (que en
+  // la práctica refleja el país/región del dispositivo) la primera vez,
+  // se recuerda en este navegador, y el visitante puede cambiarlo a mano
+  // con el selector de banderas. Solo traduce el texto FIJO del sitio
+  // (botones, formulario, etc.); el contenido que escribe el
+  // administrador se muestra en el idioma en que fue escrito.
+  const [lang, setLang] = useState<LangCode>("es");
+  useEffect(() => {
+    // Se hace una sola vez al montar, para sincronizar con localStorage /
+    // el idioma del navegador (no accesibles durante el render del
+    // servidor). Es un efecto de sincronización legítimo, no un cálculo
+    // derivado del render.
+    try {
+      const saved = window.localStorage.getItem(LANG_STORAGE_KEY) as LangCode | null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLang(saved ?? detectDefaultLanguage());
+    } catch {
+      setLang(detectDefaultLanguage());
+    }
+  }, []);
+  function changeLang(next: LangCode) {
+    setLang(next);
+    try {
+      window.localStorage.setItem(LANG_STORAGE_KEY, next);
+    } catch {
+      // localStorage puede fallar (modo privado, etc.); no es crítico.
+    }
+  }
+  const t = (key: string) => translate(lang, key);
 
   // Estilo compartido por TODOS los botones "sólidos" del sitio (hero,
   // servicios, redes, proyectos, formulario de contacto). Se usa como
@@ -424,12 +463,21 @@ border border-card-border
 shadow-md hover:shadow-xl hover:-translate-y-1
 transition duration-300 rounded-xl p-4"
           >
-            <div
-              className="text-4xl"
-              style={{ color: settings.stack_icon_color || "#2563eb" }}
-            >
-              {getIcon(skill.icon)}
-            </div>
+            {skill.custom_image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={skill.custom_image_url}
+                alt={skill.name || t("project_alt")}
+                className="w-12 h-12 object-contain"
+              />
+            ) : (
+              <div
+                className="text-4xl"
+                style={{ color: settings.stack_icon_color || "#2563eb" }}
+              >
+                {getIcon(skill.icon)}
+              </div>
+            )}
             <p className="font-semibold text-foreground text-center break-words max-w-full">
               {skill.name}
             </p>
@@ -450,6 +498,7 @@ transition duration-300 rounded-xl p-4"
         fx={fx}
         accentColor={settings.primary_color}
         radius={btnRadius}
+        labels={{ prev: t("prev_image"), next: t("next_image"), goTo: t("go_to_image") }}
       />
     </section>
   );
@@ -572,33 +621,33 @@ transition duration-300 rounded-xl p-4"
             body: JSON.stringify(data),
           });
 
-          alert(res.ok ? "Mensaje enviado!" : "Error al enviar.");
+          alert(res.ok ? t("form_success") : t("form_error"));
           form.reset();
         }}
       >
         <input
           name="nombre"
-          placeholder="Tu nombre"
+          placeholder={t("form_name")}
           required
           className="border border-card-border bg-card text-foreground placeholder-foreground/40 p-3 rounded-lg"
         />
         <input
           name="email"
           type="email"
-          placeholder="Tu correo"
+          placeholder={t("form_email")}
           required
           className="border border-card-border bg-card text-foreground placeholder-foreground/40 p-3 rounded-lg"
         />
         <textarea
           name="mensaje"
           rows={5}
-          placeholder="Mensaje..."
+          placeholder={t("form_message")}
           required
           className="border border-card-border bg-card text-foreground placeholder-foreground/40 p-3 rounded-lg"
         ></textarea>
 
         <button className="px-6 py-3" style={btnStyle}>
-          Enviar mensaje
+          {t("form_submit")}
         </button>
       </form>
     </section>
@@ -685,6 +734,8 @@ transition duration-300 rounded-xl p-4"
       {/* BOTÓN DE TEMA */}
       <button
         onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        aria-label={t("theme_toggle")}
+        title={t("theme_toggle")}
         className="fixed top-5 right-5 p-3 rounded-full shadow-lg 
         bg-card
         border border-card-border
@@ -693,6 +744,9 @@ transition duration-300 rounded-xl p-4"
       >
         {theme === "light" ? "🌙" : "✨"}
       </button>
+
+      {/* SELECTOR DE IDIOMA */}
+      <LanguageSwitcher lang={lang} onChange={changeLang} label={t("language_toggle")} />
 
       {/* HERO */}
       <section className="relative isolate flex flex-col items-center text-center pt-24 px-6 gap-4 overflow-hidden">
@@ -734,7 +788,7 @@ transition duration-300 rounded-xl p-4"
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={resolvedTheme === "dark" ? settings.logo_light_url : settings.logo_dark_url}
-              alt="Logo"
+              alt={t("logo_alt")}
               style={{
                 width: `${settings.logo_width || DEFAULT_SETTINGS.logo_width}px`,
                 maxWidth: "100%",
