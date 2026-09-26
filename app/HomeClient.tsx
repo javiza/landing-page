@@ -939,8 +939,8 @@ transition duration-300 rounded-xl p-4"
               </nav>
             )}
 
-            {/* DATOS DE CONTACTO */}
-            {(settings.footer_email || settings.footer_phone) && (
+            {/* DATOS DE CONTACTO + ÍTEMS EXTRA LIBRES */}
+            {(settings.footer_email || settings.footer_phone || settings.footer_links.length > 0) && (
               <div className="flex flex-col items-center sm:items-start gap-2">
                 {settings.footer_email && (
                   <a
@@ -958,6 +958,25 @@ transition duration-300 rounded-xl p-4"
                     <FaPhoneAlt /> {settings.footer_phone}
                   </a>
                 )}
+                {settings.footer_links
+                  .filter((item) => item.label.trim())
+                  .map((item, i) =>
+                    item.url.trim() ? (
+                      <a
+                        key={i}
+                        href={item.url}
+                        target={item.url.startsWith("http") ? "_blank" : undefined}
+                        rel={item.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                        className="text-sm opacity-80 hover:opacity-100 transition"
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <p key={i} className="text-sm opacity-80">
+                        {item.label}
+                      </p>
+                    )
+                  )}
               </div>
             )}
 

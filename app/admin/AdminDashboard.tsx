@@ -1450,6 +1450,59 @@ export default function AdminDashboard({
                   />
                   Mostrar mini-enlaces a cada sección del home en el footer
                 </label>
+
+                <div className="pt-2 border-t border-gray-200 dark:border-purple-700/40 space-y-3">
+                  <p className="text-sm font-semibold">
+                    Otros datos del footer (agrega los que necesites: WhatsApp, Instagram,
+                    dirección, horario, etc.)
+                  </p>
+                  {settings.footer_links.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex flex-col sm:flex-row gap-2 border border-gray-200 dark:border-purple-700/40 p-3 rounded-xl"
+                    >
+                      <input
+                        value={item.label}
+                        onChange={(e) => {
+                          const next = [...settings.footer_links];
+                          next[i] = { ...next[i], label: e.target.value };
+                          set("footer_links", next);
+                        }}
+                        placeholder="Texto a mostrar (ej: WhatsApp, Instagram, Dirección)"
+                        className={inputClass}
+                      />
+                      <input
+                        value={item.url}
+                        onChange={(e) => {
+                          const next = [...settings.footer_links];
+                          next[i] = { ...next[i], url: e.target.value };
+                          set("footer_links", next);
+                        }}
+                        placeholder="Enlace (opcional, ej: https://wa.me/56912345678)"
+                        className={inputClass}
+                      />
+                      <button
+                        onClick={() =>
+                          set(
+                            "footer_links",
+                            settings.footer_links.filter((_, idx) => idx !== i)
+                          )
+                        }
+                        className="text-red-500 text-sm flex items-center gap-1 shrink-0 self-center"
+                      >
+                        <FaTrash size={11} /> Eliminar
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() =>
+                      set("footer_links", [...settings.footer_links, { label: "", url: "" }])
+                    }
+                    className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm"
+                  >
+                    + Agregar ítem al footer
+                  </button>
+                </div>
                 <div className="flex flex-wrap items-end gap-6">
                   <label className="flex flex-col items-center gap-2 text-sm">
                     Color de fondo

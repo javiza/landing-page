@@ -181,6 +181,10 @@ export type SiteSettings = {
   footer_text_color: string; // color del texto del footer
   footer_email: string; // opcional, se muestra como enlace mailto: en el footer
   footer_phone: string; // opcional, se muestra como enlace tel: en el footer
+  // Ítems extra del footer, 100% libres: el admin agrega los que quiera
+  // (WhatsApp, Instagram, dirección, horario, etc.). Si "url" viene vacío
+  // se muestra solo como texto; si tiene valor, se muestra como enlace.
+  footer_links: { label: string; url: string }[];
   // Si está activo, el footer muestra automáticamente mini-enlaces a cada
   // sección visible del home (usa el título que el admin le puso a cada una).
   footer_show_section_links: boolean;
@@ -379,6 +383,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   footer_text_color: "#e5e7eb",
   footer_email: "",
   footer_phone: "",
+  footer_links: [],
   footer_show_section_links: true,
 
   news_title: "Noticias",
