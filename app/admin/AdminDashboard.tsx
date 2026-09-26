@@ -369,8 +369,9 @@ export default function AdminDashboard({
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🖼️ Favicon</h2>
                 <p className="text-sm text-gray-500">
-                  Es el ícono pequeño que aparece en la pestaña del navegador. Usa una
-                  imagen cuadrada (.png o .ico) para mejores resultados.
+                  Opcional. Es el ícono pequeño que aparece en la pestaña del navegador. Usa una
+                  imagen cuadrada (.png o .ico) para mejores resultados. Si no subes uno,
+                  se usa el que trae el sitio por defecto.
                 </p>
                 <div className="flex items-start gap-4">
                   {settings.favicon_url && (
@@ -421,6 +422,14 @@ export default function AdminDashboard({
                         className={inputClass}
                       />
                     </FieldRow>
+                    {settings.favicon_url && (
+                      <button
+                        onClick={() => set("favicon_url", "")}
+                        className="text-red-500 text-sm flex items-center gap-1"
+                      >
+                        <FaTrash size={11} /> Quitar favicon
+                      </button>
+                    )}
                   </div>
                 </div>
                 <FieldRow label="Nombre del sitio / negocio (se usa en el título y en SEO)">
@@ -629,9 +638,10 @@ export default function AdminDashboard({
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🏷️ Logo</h2>
                 <p className="text-sm text-gray-500">
-                  Puedes subir la imagen desde tu dispositivo o pegar directamente una
+                  Opcional. Puedes subir la imagen desde tu dispositivo o pegar directamente una
                   URL. Se usan dos versiones: una para modo claro y otra para modo
                   oscuro (si solo tienes una, puedes repetir la misma URL en ambas).
+                  Si no subes ninguna, se usa el logo genérico que trae el sitio.
                 </p>
 
                 <FieldRow label={`Tamaño del logo (${settings.logo_width}px de ancho)`}>
@@ -688,6 +698,14 @@ export default function AdminDashboard({
                       placeholder="...o pega una URL de imagen"
                       className={inputClass}
                     />
+                    {settings.logo_dark_url && (
+                      <button
+                        onClick={() => set("logo_dark_url", "")}
+                        className="text-red-500 text-sm flex items-center gap-1"
+                      >
+                        <FaTrash size={11} /> Quitar logo (modo claro)
+                      </button>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -721,6 +739,14 @@ export default function AdminDashboard({
                       placeholder="...o pega una URL de imagen"
                       className={inputClass}
                     />
+                    {settings.logo_light_url && (
+                      <button
+                        onClick={() => set("logo_light_url", "")}
+                        className="text-red-500 text-sm flex items-center gap-1"
+                      >
+                        <FaTrash size={11} /> Quitar logo (modo oscuro)
+                      </button>
+                    )}
                   </div>
                 </div>
               </section>
@@ -747,60 +773,97 @@ export default function AdminDashboard({
               </section>
 
               <section className="card space-y-4">
-                <h2 className="text-xl font-bold">🖼️ Imagen de fondo del inicio (Hero)</h2>
+                <h2 className="text-xl font-bold">🖼️ Fondo del inicio (Hero)</h2>
                 <p className="text-sm text-gray-500">
-                  Opcional. Se muestra solo detrás de la portada, con una capa oscura
-                  encima para que el título se siga leyendo bien.
+                  Ambas opciones son opcionales e independientes: puedes usar una imagen,
+                  un color sólido, o dejarlo todo vacío para el fondo por defecto. Si
+                  cargas una imagen, esta tiene prioridad sobre el color.
                 </p>
-                {settings.hero_bg_image_url && (
-                  <img
-                    src={settings.hero_bg_image_url}
-                    alt="Fondo del inicio"
-                    className="w-full max-w-md h-40 object-cover rounded-xl"
-                  />
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  disabled={uploading === "hero_bg"}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const url = await uploadImage(file, "hero_bg");
-                    if (url) set("hero_bg_image_url", url);
-                    e.target.value = "";
-                  }}
-                />
-                {uploading === "hero_bg" && <p className="text-sm">Subiendo...</p>}
-                <FieldRow label="...o pega una URL de imagen">
+
+                <div className="space-y-3">
+                  <p className="font-semibold text-sm">Opción A: imagen de fondo</p>
+                  {settings.hero_bg_image_url && (
+                    <img
+                      src={settings.hero_bg_image_url}
+                      alt="Fondo del inicio"
+                      className="w-full max-w-md h-40 object-cover rounded-xl"
+                    />
+                  )}
                   <input
-                    value={settings.hero_bg_image_url}
-                    onChange={(e) => set("hero_bg_image_url", e.target.value)}
-                    placeholder="https://ejemplo.com/fondo-inicio.jpg"
-                    className={inputClass}
+                    type="file"
+                    accept="image/*"
+                    disabled={uploading === "hero_bg"}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const url = await uploadImage(file, "hero_bg");
+                      if (url) set("hero_bg_image_url", url);
+                      e.target.value = "";
+                    }}
                   />
-                </FieldRow>
-                {settings.hero_bg_image_url && (
-                  <>
-                    <FieldRow label={`Oscurecer la imagen (${Math.round(settings.hero_bg_overlay_opacity * 100)}%)`}>
-                      <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        value={settings.hero_bg_overlay_opacity}
-                        onChange={(e) => set("hero_bg_overlay_opacity", Number(e.target.value))}
-                        className="w-full"
-                      />
-                    </FieldRow>
-                    <button
-                      onClick={() => set("hero_bg_image_url", "")}
-                      className="text-red-500 text-sm flex items-center gap-1"
-                    >
-                      <FaTrash size={11} /> Quitar imagen de fondo del inicio
-                    </button>
-                  </>
-                )}
+                  {uploading === "hero_bg" && <p className="text-sm">Subiendo...</p>}
+                  <FieldRow label="...o pega una URL de imagen">
+                    <input
+                      value={settings.hero_bg_image_url}
+                      onChange={(e) => set("hero_bg_image_url", e.target.value)}
+                      placeholder="https://ejemplo.com/fondo-inicio.jpg"
+                      className={inputClass}
+                    />
+                  </FieldRow>
+                  {settings.hero_bg_image_url && (
+                    <>
+                      <FieldRow label={`Oscurecer la imagen (${Math.round(settings.hero_bg_overlay_opacity * 100)}%)`}>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          value={settings.hero_bg_overlay_opacity}
+                          onChange={(e) => set("hero_bg_overlay_opacity", Number(e.target.value))}
+                          className="w-full"
+                        />
+                      </FieldRow>
+                      <button
+                        onClick={() => set("hero_bg_image_url", "")}
+                        className="text-red-500 text-sm flex items-center gap-1"
+                      >
+                        <FaTrash size={11} /> Quitar imagen de fondo del inicio
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                  <span className="flex-1 h-px bg-gray-200 dark:bg-purple-700/30" />
+                  o
+                  <span className="flex-1 h-px bg-gray-200 dark:bg-purple-700/30" />
+                </div>
+
+                <div className="space-y-3">
+                  <p className="font-semibold text-sm">Opción B: color sólido de fondo</p>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="color"
+                      value={settings.hero_bg_color || "#000000"}
+                      onChange={(e) => set("hero_bg_color", e.target.value)}
+                      className="w-16 h-10 cursor-pointer"
+                    />
+                    {settings.hero_bg_color && (
+                      <button
+                        onClick={() => set("hero_bg_color", "")}
+                        className="text-red-500 text-sm flex items-center gap-1"
+                      >
+                        <FaTrash size={11} /> Quitar color de fondo del inicio
+                      </button>
+                    )}
+                  </div>
+                  {settings.hero_bg_image_url && settings.hero_bg_color && (
+                    <p className="text-xs text-gray-500">
+                      Tienes una imagen cargada arriba, así que ella se mostrará en vez
+                      de este color mientras la imagen siga puesta.
+                    </p>
+                  )}
+                </div>
               </section>
 
               <section className="card space-y-4">

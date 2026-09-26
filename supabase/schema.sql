@@ -99,6 +99,7 @@ alter table site_settings add column if not exists hero_terminal_text_color text
 -- imagen de toda la página). Son independientes entre sí y de "enable_effects".
 alter table site_settings add column if not exists hero_bg_image_url text default '';
 alter table site_settings add column if not exists hero_bg_overlay_opacity numeric default 0.55;
+alter table site_settings add column if not exists hero_bg_color text default '';
 alter table site_settings add column if not exists page_bg_image_url text default '';
 alter table site_settings add column if not exists page_bg_image_opacity numeric default 0.35;
 

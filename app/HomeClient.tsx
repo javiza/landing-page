@@ -625,6 +625,9 @@ transition duration-300 rounded-xl p-4"
 
   const hasPageBg = Boolean(settings.page_bg_image_url);
   const hasHeroBg = Boolean(settings.hero_bg_image_url);
+  // Color plano de fondo del hero: solo se usa si NO hay imagen (la imagen
+  // tiene prioridad si por algún motivo hay ambos cargados).
+  const hasHeroColor = !hasHeroBg && Boolean(settings.hero_bg_color);
 
   return (
     // El color de fondo real ahora se fija por request en layout.tsx
@@ -675,6 +678,13 @@ transition duration-300 rounded-xl p-4"
               style={{ opacity: settings.hero_bg_overlay_opacity, zIndex: -1 }}
             />
           </>
+        )}
+        {hasHeroColor && (
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ backgroundColor: settings.hero_bg_color, zIndex: -1 }}
+          />
         )}
         <MotionDiv
           enabled={fx}

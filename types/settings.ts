@@ -113,6 +113,7 @@ export type SiteSettings = {
   // sí: se pueden combinar libremente o dejar todos vacíos/apagados.
   hero_bg_image_url: string; // imagen de fondo solo detrás del hero/inicio
   hero_bg_overlay_opacity: number; // 0 a 1, oscurece la imagen del hero para que se lea el texto
+  hero_bg_color: string; // color sólido de fondo del hero (alternativa a la imagen, ambos opcionales)
   page_bg_image_url: string; // imagen de fondo fija detrás de toda la página
   page_bg_image_opacity: number; // 0 a 1, qué tan visible es la imagen de fondo completa
 
@@ -272,6 +273,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 
   hero_bg_image_url: "",
   hero_bg_overlay_opacity: 0.55,
+  hero_bg_color: "",
   page_bg_image_url: "",
   page_bg_image_opacity: 0.35,
 
