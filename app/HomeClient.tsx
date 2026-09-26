@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence, type HTMLMotionProps } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { FaLink } from "react-icons/fa";
+import { FaLink, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
 import LanguageSwitcher from "./components/LanguageSwitcher";
@@ -300,6 +300,7 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
   const aboutSection = (
     <section
       key="about"
+      id="about"
       className="px-8 py-20 max-w-6xl mx-auto"
       style={sectionAlignStyle("about")}
     >
@@ -400,6 +401,7 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
   const servicesSection = (
     <section
       key="services"
+      id="services"
       className="px-8 py-20 max-w-6xl mx-auto"
       style={sectionAlignStyle("services")}
     >
@@ -441,6 +443,7 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
   const stackSection = (
     <section
       key="stack"
+      id="stack"
       className="px-8 py-20 max-w-6xl mx-auto"
       style={sectionAlignStyle("stack")}
     >
@@ -490,6 +493,7 @@ transition duration-300 rounded-xl p-4"
   const bannerSection = (
     <section
       key="banner"
+      id="banner"
       className="px-8 py-10 max-w-6xl mx-auto"
       style={sectionAlignStyle("banner")}
     >
@@ -506,6 +510,7 @@ transition duration-300 rounded-xl p-4"
   const newsSection = (
     <section
       key="news"
+      id="news"
       className="px-8 py-20 max-w-6xl mx-auto"
       style={sectionAlignStyle("news")}
     >
@@ -683,6 +688,7 @@ transition duration-300 rounded-xl p-4"
       return (
         <section
           key={key}
+          id={`custom-${custom.id}`}
           className="px-8 py-20 max-w-6xl mx-auto"
           style={sectionAlignStyle(key)}
         >
@@ -702,6 +708,43 @@ transition duration-300 rounded-xl p-4"
     if (sectionVisible[key] === false) return null;
     return builtinSections[key] ?? null;
   });
+
+  // Mini-enlaces del footer: uno por cada sección visible del home, usando
+  // el mismo título que el admin le puso a esa sección. El banner no tiene
+  // título propio, así que no genera enlace.
+  const SECTION_ANCHOR_ID: Record<string, string> = {
+    about: "about",
+    services: "services",
+    stack: "stack",
+    news: "news",
+    projects: "proyectos",
+    contact: "contacto",
+  };
+  const SECTION_TITLE: Record<string, string> = {
+    about: settings.about_section_title,
+    services: settings.services_title,
+    stack: settings.stack_title,
+    news: settings.news_title,
+    projects: settings.projects_title,
+    contact: settings.contact_title,
+  };
+  const footerLinks: { label: string; href: string }[] = settings.footer_show_section_links
+    ? orderedKeys
+        .map((key) => {
+          if (key.startsWith("custom:")) {
+            const id = key.slice("custom:".length);
+            const custom = settings.custom_sections.find((c) => c.id === id);
+            if (!custom || !custom.title.trim()) return null;
+            return { label: custom.title, href: `#custom-${id}` };
+          }
+          if (sectionVisible[key] === false) return null;
+          const anchorId = SECTION_ANCHOR_ID[key];
+          const label = SECTION_TITLE[key];
+          if (!anchorId || !label || !label.trim()) return null;
+          return { label, href: `#${anchorId}` };
+        })
+        .filter((x): x is { label: string; href: string } => Boolean(x))
+    : [];
 
   const hasPageBg = Boolean(settings.page_bg_image_url);
   const hasHeroBg = Boolean(settings.hero_bg_image_url);
@@ -873,22 +916,61 @@ transition duration-300 rounded-xl p-4"
 
       {/* FOOTER */}
       <footer
-        className="mt-20 w-full py-6 px-6"
+        className="mt-20 w-full py-10 px-6"
         style={{
           backgroundColor: settings.footer_bg_color,
           color: settings.footer_text_color,
         }}
       >
-        <div className="max-w-6xl mx-auto relative flex items-center justify-center">
-          {/* TEXTO CENTRADO */}
-          <p className="text-sm text-center">
-            © {new Date().getFullYear()} {settings.footer_text}
-          </p>
+        <div className="max-w-6xl mx-auto relative">
+          <div className="flex flex-col items-center gap-6 text-center sm:text-left sm:flex-row sm:items-start sm:justify-between">
+            {/* ENLACES RÁPIDOS A LAS SECCIONES DEL HOME */}
+            {footerLinks.length > 0 && (
+              <nav className="flex flex-col items-center sm:items-start gap-2">
+                {footerLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm opacity-80 hover:opacity-100 transition"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
+            )}
 
-          {/* BOTÓN A LA DERECHA */}
+            {/* DATOS DE CONTACTO */}
+            {(settings.footer_email || settings.footer_phone) && (
+              <div className="flex flex-col items-center sm:items-start gap-2">
+                {settings.footer_email && (
+                  <a
+                    href={`mailto:${settings.footer_email}`}
+                    className="flex items-center gap-2 text-sm opacity-80 hover:opacity-100 transition"
+                  >
+                    <FaEnvelope /> {settings.footer_email}
+                  </a>
+                )}
+                {settings.footer_phone && (
+                  <a
+                    href={`tel:${settings.footer_phone.replace(/\s+/g, "")}`}
+                    className="flex items-center gap-2 text-sm opacity-80 hover:opacity-100 transition"
+                  >
+                    <FaPhoneAlt /> {settings.footer_phone}
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* COPYRIGHT */}
+            <p className="text-sm opacity-90">
+              © {new Date().getFullYear()} {settings.footer_text}
+            </p>
+          </div>
+
+          {/* BOTÓN VOLVER ARRIBA */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="absolute right-0 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition"
+            className="mt-8 mx-auto sm:mx-0 sm:absolute sm:-top-4 sm:right-0 flex bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition"
           >
             ↑
           </button>

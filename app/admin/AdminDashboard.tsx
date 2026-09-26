@@ -361,14 +361,15 @@ export default function AdminDashboard({
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition ${
+                  title={getTabLabel(tab, settings)}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-left whitespace-nowrap md:whitespace-normal md:break-words transition ${
                     activeTab === tab.key
                       ? "bg-blue-600 text-white shadow"
                       : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
                   }`}
                 >
-                  <span className="text-base">{tab.icon}</span>
-                  {getTabLabel(tab, settings)}
+                  <span className="text-base shrink-0">{tab.icon}</span>
+                  <span className="min-w-0">{getTabLabel(tab, settings)}</span>
                 </button>
               ))}
             </div>
@@ -1423,6 +1424,32 @@ export default function AdminDashboard({
                     className={inputClass}
                   />
                 </FieldRow>
+                <FieldRow label="Email de contacto (opcional)">
+                  <input
+                    type="email"
+                    value={settings.footer_email}
+                    onChange={(e) => set("footer_email", e.target.value)}
+                    placeholder="contacto@tunegocio.com"
+                    className={inputClass}
+                  />
+                </FieldRow>
+                <FieldRow label="Teléfono de contacto (opcional)">
+                  <input
+                    type="tel"
+                    value={settings.footer_phone}
+                    onChange={(e) => set("footer_phone", e.target.value)}
+                    placeholder="+56 9 1234 5678"
+                    className={inputClass}
+                  />
+                </FieldRow>
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={settings.footer_show_section_links}
+                    onChange={(e) => set("footer_show_section_links", e.target.checked)}
+                  />
+                  Mostrar mini-enlaces a cada sección del home en el footer
+                </label>
                 <div className="flex flex-wrap items-end gap-6">
                   <label className="flex flex-col items-center gap-2 text-sm">
                     Color de fondo
@@ -1443,13 +1470,17 @@ export default function AdminDashboard({
                     />
                   </label>
                   <div
-                    className="px-5 py-3 text-sm rounded-lg"
+                    className="px-5 py-3 text-sm rounded-lg space-y-1"
                     style={{
                       backgroundColor: settings.footer_bg_color,
                       color: settings.footer_text_color,
                     }}
                   >
-                    © {new Date().getFullYear()} {settings.footer_text}
+                    <p>
+                      © {new Date().getFullYear()} {settings.footer_text}
+                    </p>
+                    {settings.footer_email && <p className="opacity-80">{settings.footer_email}</p>}
+                    {settings.footer_phone && <p className="opacity-80">{settings.footer_phone}</p>}
                   </div>
                 </div>
               </section>

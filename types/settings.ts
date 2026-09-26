@@ -179,6 +179,11 @@ export type SiteSettings = {
   footer_text: string;
   footer_bg_color: string; // color de fondo del footer
   footer_text_color: string; // color del texto del footer
+  footer_email: string; // opcional, se muestra como enlace mailto: en el footer
+  footer_phone: string; // opcional, se muestra como enlace tel: en el footer
+  // Si está activo, el footer muestra automáticamente mini-enlaces a cada
+  // sección visible del home (usa el título que el admin le puso a cada una).
+  footer_show_section_links: boolean;
 
   // Noticias / novedades (opcional, se muestran si hay al menos una)
   news_title: string; // título de la sección completa
@@ -372,6 +377,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   footer_text: "Tu Nombre o Negocio",
   footer_bg_color: "#111827",
   footer_text_color: "#e5e7eb",
+  footer_email: "",
+  footer_phone: "",
+  footer_show_section_links: true,
 
   news_title: "Noticias",
   news: [],
