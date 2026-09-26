@@ -89,3 +89,21 @@ body {
       0 0 10px rgba(255, 255, 255, 0.1),
       0 0 18px rgba(120, 80, 255, 0.25);
 }
+
+/* ------------------------------
+   TIPOGRAFÍA DE ENCABEZADOS
+   --font-heading / --heading-color los llena layout.tsx según lo
+   configurado en el panel admin (Identidad y diseño → Tipografía,
+   rol "Encabezados"). Si el admin no elige nada quedan iguales a la
+   tipografía del texto general / al color normal del tema, así el
+   sitio no cambia hasta que se personalice a propósito. Va después de
+   .title-section para ganarle el empate de especificidad.
+------------------------------ */
+h1,
+h2,
+h3,
+h4,
+.title-section {
+  font-family: var(--font-heading, var(--font-site));
+  color: var(--heading-color, inherit);
+}

@@ -41,7 +41,9 @@ import {
   ServiceItemsEditor,
   SkillItemsEditor,
   ProjectItemsEditor,
+  TypographyRoleEditor,
 } from "./editors";
+import type { TypographyStyle } from "../../types/settings";
 
 // Etiqueta fija de cada sección incorporada, solo para identificarla en el
 // panel (el NOMBRE que ve el visitante ahora es 100% editable por sección,
@@ -133,6 +135,36 @@ export default function AdminDashboard({
 
     const { data } = supabase.storage.from("site-images").getPublicUrl(path);
     return data.publicUrl;
+  }
+
+  // Sube un archivo de tipografía (.ttf/.otf/.woff/.woff2) a un bucket
+  // aparte del de imágenes, para las tipografías propias que suba el
+  // admin en el panel de Tipografía.
+  async function uploadFontFile(file: File): Promise<string | null> {
+    const path = `${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage
+      .from("site-fonts")
+      .upload(path, file, { upsert: true });
+
+    if (error) {
+      setMessage({ text: `Error subiendo tipografía: ${error.message}`, ok: false });
+      return null;
+    }
+
+    const { data } = supabase.storage.from("site-fonts").getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  // Actualiza un rol de tipografía (site_title / headings / body) sin
+  // pisar los demás.
+  function setTypography(role: keyof SiteSettings["typography"], patch: Partial<TypographyStyle>) {
+    setSettings((prev) => ({
+      ...prev,
+      typography: {
+        ...prev.typography,
+        [role]: { ...prev.typography[role], ...patch },
+      },
+    }));
   }
 
   async function handleSave() {
@@ -398,6 +430,16 @@ export default function AdminDashboard({
                     className={inputClass}
                   />
                 </FieldRow>
+                <TypographyRoleEditor
+                  label="Tipografía del nombre del sitio"
+                  hint="Se aplica al título principal (nombre grande) que se ve en la portada. Tamaño, tipo de letra y una tipografía propia si la tienes."
+                  value={settings.typography.site_title}
+                  onChange={(patch) => setTypography("site_title", patch)}
+                  allowInherit
+                  showSize
+                  showColor
+                  onUploadFont={uploadFontFile}
+                />
                 <FieldRow label="Título de la pestaña del navegador">
                   <input
                     value={settings.browser_tab_title}
@@ -449,18 +491,34 @@ export default function AdminDashboard({
                 </div>
               </section>
 
-              <section className="card space-y-3">
+              <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🔤 Tipografía</h2>
-                <select
-                  value={settings.font_family}
-                  onChange={(e) => set("font_family", e.target.value as SiteSettings["font_family"])}
-                  className={inputClass + " sm:w-64"}
-                >
-                  <option value="geist">Geist (actual)</option>
-                  <option value="inter">Inter</option>
-                  <option value="poppins">Poppins</option>
-                  <option value="roboto">Roboto</option>
-                </select>
+                <p className="text-sm text-foreground/60">
+                  Más de una decena de tipografías para elegir, además de la opción de subir
+                  la tuya propia. La tipografía del <strong>nombre del sitio</strong> se
+                  edita más arriba, junto a ese campo; acá se configuran los{" "}
+                  <strong>encabezados</strong> (títulos de cada sección: Sobre mí, Servicios,
+                  Habilidades, Proyectos, etc.) y el <strong>texto general</strong> del sitio.
+                  Si dejas un rol en &quot;Heredar&quot;, usa automáticamente la tipografía del
+                  rol de abajo, así nada cambia hasta que elijas algo distinto.
+                </p>
+                <TypographyRoleEditor
+                  label="Encabezados de sección"
+                  hint="Títulos de todas las secciones del home (Sobre mí, Servicios, Habilidades, Proyectos, Noticias, Contacto, etc.)."
+                  value={settings.typography.headings}
+                  onChange={(patch) => setTypography("headings", patch)}
+                  allowInherit
+                  showColor
+                  onUploadFont={uploadFontFile}
+                />
+                <TypographyRoleEditor
+                  label="Texto general del sitio"
+                  hint="Tipografía base de todo el sitio (párrafos y, salvo que los personalices arriba, también encabezados y nombre del sitio)."
+                  value={settings.typography.body}
+                  onChange={(patch) => setTypography("body", patch)}
+                  allowInherit={false}
+                  onUploadFont={uploadFontFile}
+                />
               </section>
 
               <section className="card space-y-4">

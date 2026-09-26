@@ -9,6 +9,18 @@ import { FaLink } from "react-icons/fa";
 import BackgroundParticles from "./components/BackgroundParticles";
 import { DEFAULT_SETTINGS, type SiteSettings } from "../types/settings";
 import { getIcon } from "../lib/icons";
+import { FONT_VAR } from "../lib/fonts";
+
+// Tipografía del título principal (nombre del sitio en la portada): si el
+// admin la dejó en "inherit" no se fuerza nada acá (el título sigue
+// tomando la tipografía de encabezados / texto general definida en
+// layout.tsx vía CSS), y así el look por defecto no cambia.
+function siteTitleFontFamily(settings: SiteSettings): string | undefined {
+  const t = settings.typography.site_title;
+  if (t.font_family === "inherit") return undefined;
+  if (t.font_family === "custom") return t.custom_font_name ? `"${t.custom_font_name}"` : undefined;
+  return FONT_VAR[t.font_family];
+}
 
 // Cuando enable_effects está apagado, estos wrappers renderizan un <div>/<a>
 // plano en vez de un componente animado de framer-motion. Así el
@@ -690,7 +702,13 @@ transition duration-300 rounded-xl p-4"
         {/* TITULO PRINCIPAL */}
         <h2
           className="text-4xl sm:text-5xl lg:text-6xl font-extrabold max-w-3xl"
-          style={{ color: settings.primary_color }}
+          style={{
+            color: settings.typography.site_title.color || settings.primary_color,
+            fontFamily: siteTitleFontFamily(settings),
+            ...(settings.typography.site_title.font_size > 0
+              ? { fontSize: `${settings.typography.site_title.font_size}px` }
+              : {}),
+          }}
         >
           {settings.hero_title}
         </h2>

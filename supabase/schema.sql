@@ -127,6 +127,27 @@ set about_highlights = jsonb_build_array(about_highlight)
 where coalesce(about_highlight, '') <> ''
   and (about_highlights is null or about_highlights = '[]'::jsonb);
 
+-- 1.10) Tipografía avanzada: nombre del sitio, encabezados y texto
+-- general, cada uno con su propio tipo de letra, tamaño/color cuando
+-- aplica y la opción de subir una tipografía propia. Reemplaza a la
+-- antigua columna "font_family" (única para todo el sitio), que se deja
+-- sin usar por si quieres consultar su valor anterior.
+alter table site_settings add column if not exists typography jsonb default '{
+  "site_title": {"font_family": "inherit", "font_size": 0, "color": "", "custom_font_url": "", "custom_font_name": ""},
+  "headings":   {"font_family": "inherit", "font_size": 0, "color": "", "custom_font_url": "", "custom_font_name": ""},
+  "body":       {"font_family": "geist",   "font_size": 0, "color": "", "custom_font_url": "", "custom_font_name": ""}
+}'::jsonb;
+
+-- Si venías de la versión anterior, copia la tipografía única que tenías
+-- (font_family) al nuevo rol "body", para que el sitio se siga viendo
+-- igual. Seguro de re-ejecutar (solo actúa una vez, cuando typography
+-- todavía tiene el valor por defecto de arriba).
+update site_settings
+set typography = jsonb_set(typography, '{body,font_family}', to_jsonb(font_family))
+where font_family is not null
+  and typography #>> '{body,font_family}' = 'geist'
+  and font_family <> 'geist';
+
 -- Nota: si tu base de datos venía de una versión anterior con la sección
 -- "Ciberseguridad", las columnas security_title / security_items /
 -- show_security pueden seguir existiendo con datos antiguos. Ya no se usan
@@ -188,6 +209,30 @@ create policy "Solo admin puede actualizar imágenes"
 on storage.objects for update
 to authenticated
 using (bucket_id = 'site-images');
+
+-- 3.1) Bucket aparte para las tipografías (.ttf/.otf/.woff/.woff2) que el
+-- admin suba desde el panel de Tipografía.
+insert into storage.buckets (id, name, public)
+values ('site-fonts', 'site-fonts', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Lectura pública de tipografías" on storage.objects;
+create policy "Lectura pública de tipografías"
+on storage.objects for select
+to anon, authenticated
+using (bucket_id = 'site-fonts');
+
+drop policy if exists "Solo admin puede subir tipografías" on storage.objects;
+create policy "Solo admin puede subir tipografías"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'site-fonts');
+
+drop policy if exists "Solo admin puede actualizar tipografías" on storage.objects;
+create policy "Solo admin puede actualizar tipografías"
+on storage.objects for update
+to authenticated
+using (bucket_id = 'site-fonts');
 
 -- =========================================================
 -- Después de correr esto, crea tu usuario admin en:

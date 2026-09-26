@@ -18,6 +18,57 @@ export type CustomSection = {
   content: string;
 };
 
+// Catálogo de tipografías disponibles (se cargan de forma estática en
+// layout.tsx vía next/font/google). Para agregar una más: declararla ahí
+// y sumarla aquí con la misma key.
+export const FONT_FAMILY_OPTIONS = [
+  { key: "geist", label: "Geist" },
+  { key: "inter", label: "Inter" },
+  { key: "poppins", label: "Poppins" },
+  { key: "roboto", label: "Roboto" },
+  { key: "montserrat", label: "Montserrat" },
+  { key: "lato", label: "Lato" },
+  { key: "opensans", label: "Open Sans" },
+  { key: "nunito", label: "Nunito" },
+  { key: "raleway", label: "Raleway" },
+  { key: "worksans", label: "Work Sans" },
+  { key: "sourcesans", label: "Source Sans 3" },
+  { key: "dmsans", label: "DM Sans" },
+  { key: "spacegrotesk", label: "Space Grotesk" },
+  { key: "playfair", label: "Playfair Display" },
+  { key: "merriweather", label: "Merriweather" },
+  { key: "oswald", label: "Oswald" },
+] as const;
+export type BuiltinFontKey = (typeof FONT_FAMILY_OPTIONS)[number]["key"];
+
+// Configuración de tipografía de un elemento del sitio: qué fuente usar,
+// tamaño y color (ambos opcionales: vacío/0 = no forzar nada, se mantiene
+// el valor por defecto de esa parte del sitio) y una tipografía propia
+// subida por el admin cuando "font_family" vale "custom".
+//
+// "inherit" (solo válido en site_title y headings) significa "usa la
+// tipografía del rol de abajo" (site_title hereda de headings, y
+// headings hereda de body), para que por defecto todo el sitio siga
+// viéndose exactamente igual que antes de tener este control.
+export type TypographyStyle = {
+  font_family: BuiltinFontKey | "custom" | "inherit";
+  font_size: number; // px. Solo se usa en "site_title"; 0 = tamaño automático/responsivo.
+  color: string; // vacío = usa el color por defecto de esa parte del sitio
+  custom_font_url: string; // archivo de tipografía subido (.ttf/.otf/.woff/.woff2)
+  custom_font_name: string; // nombre para mostrar / nombre de familia CSS de esa tipografía subida
+};
+
+export type TypographySettings = {
+  // Nombre del sitio / negocio: se aplica al título principal visible
+  // en la portada (el nombre grande de la página de inicio).
+  site_title: TypographyStyle;
+  // Encabezados de todas las demás secciones (Sobre mí, Servicios,
+  // Habilidades, Proyectos, Noticias, Contacto, etc.)
+  headings: TypographyStyle;
+  // Texto general del sitio (párrafos y base de toda la página).
+  body: TypographyStyle;
+};
+
 export type SiteSettings = {
   // Identidad del sitio
   favicon_url: string;
@@ -40,8 +91,10 @@ export type SiteSettings = {
   text_color_light: string;
   text_color_dark: string;
 
-  // Tipografía
-  font_family: "geist" | "inter" | "poppins" | "roboto";
+  // Tipografía (nombre del sitio, encabezados y texto general, cada uno
+  // con su propio tipo de letra, tamaño/color cuando aplica y opción de
+  // subir una tipografía propia).
+  typography: TypographySettings;
 
   // Color del texto del efecto de líneas del hero.
   hero_terminal_text_color: string;
@@ -184,7 +237,29 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   text_color_light: "#0f0f0f",
   text_color_dark: "#f0eaff",
 
-  font_family: "geist",
+  typography: {
+    site_title: {
+      font_family: "inherit",
+      font_size: 0,
+      color: "",
+      custom_font_url: "",
+      custom_font_name: "",
+    },
+    headings: {
+      font_family: "inherit",
+      font_size: 0,
+      color: "",
+      custom_font_url: "",
+      custom_font_name: "",
+    },
+    body: {
+      font_family: "geist",
+      font_size: 0,
+      color: "",
+      custom_font_url: "",
+      custom_font_name: "",
+    },
+  },
 
   hero_terminal_text_color: "#22c55e",
 
