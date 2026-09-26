@@ -7,6 +7,8 @@ export type ProjectItem = {
   link?: string;
   linkLabel?: string;
   color?: string;
+  // Imagen opcional del proyecto (subida desde el dispositivo o URL pegada).
+  image_url?: string;
 };
 
 // Sección 100% personalizada creada desde el panel: título libre +

@@ -293,72 +293,147 @@ export function SkillItemsEditor({
 export function ProjectItemsEditor({
   items,
   onChange,
+  uploadImage,
+  uploading,
 }: {
   items: ProjectItem[];
   onChange: (next: ProjectItem[]) => void;
+  uploadImage: (file: File, label: string) => Promise<string | null>;
+  uploading: string | null;
 }) {
   return (
     <div className="space-y-3">
-      {items.map((item, i) => (
-        <ItemShell key={i} onRemove={() => onChange(items.filter((_, idx) => idx !== i))}>
-          <input
-            value={item.title}
-            onChange={(e) => {
-              const next = [...items];
-              next[i] = { ...next[i], title: e.target.value };
-              onChange(next);
-            }}
-            placeholder="Título del proyecto"
-            className={inputClass}
-          />
-          <textarea
-            value={item.description}
-            onChange={(e) => {
-              const next = [...items];
-              next[i] = { ...next[i], description: e.target.value };
-              onChange(next);
-            }}
-            placeholder="Descripción"
-            rows={2}
-            className={inputClass}
-          />
-          <div className="grid sm:grid-cols-2 gap-3">
+      {items.map((item, i) => {
+        const uploadKey = `project_image_${i}`;
+        return (
+          <ItemShell key={i} onRemove={() => onChange(items.filter((_, idx) => idx !== i))}>
             <input
-              value={item.link ?? ""}
+              value={item.title}
               onChange={(e) => {
                 const next = [...items];
-                next[i] = { ...next[i], link: e.target.value };
+                next[i] = { ...next[i], title: e.target.value };
                 onChange(next);
               }}
-              placeholder="Enlace (opcional, ej: /proyecto_x)"
+              placeholder="Título del proyecto"
               className={inputClass}
             />
-            <input
-              value={item.linkLabel ?? ""}
+            <textarea
+              value={item.description}
               onChange={(e) => {
                 const next = [...items];
-                next[i] = { ...next[i], linkLabel: e.target.value };
+                next[i] = { ...next[i], description: e.target.value };
                 onChange(next);
               }}
-              placeholder="Texto del botón (ej: Ver Detalles →)"
+              placeholder="Descripción"
+              rows={2}
               className={inputClass}
             />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            Color del título
-            <input
-              type="color"
-              value={item.color || "#2563eb"}
-              onChange={(e) => {
-                const next = [...items];
-                next[i] = { ...next[i], color: e.target.value };
-                onChange(next);
-              }}
-              className="w-10 h-8 cursor-pointer"
-            />
-          </label>
-        </ItemShell>
-      ))}
+
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground/70">
+                Imagen del proyecto (opcional)
+              </p>
+              {item.image_url && (
+                <img
+                  src={item.image_url}
+                  alt={item.title || "Proyecto"}
+                  className="w-full max-w-xs h-32 object-cover rounded-lg border border-gray-200 dark:border-purple-700/40"
+                />
+              )}
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor={`project-image-input-${i}`}
+                  className={`flex items-center justify-center gap-2 text-xs px-3 py-2 rounded-lg border-2 border-dashed cursor-pointer transition ${
+                    uploading === uploadKey
+                      ? "border-gray-300 dark:border-purple-700/40 opacity-60 cursor-wait"
+                      : "border-blue-400 dark:border-purple-500/60 text-blue-600 dark:text-purple-300 hover:bg-blue-50 dark:hover:bg-white/5"
+                  }`}
+                >
+                  <FaUpload size={10} />
+                  {uploading === uploadKey ? "Subiendo..." : "Subir desde el dispositivo"}
+                </label>
+                <input
+                  id={`project-image-input-${i}`}
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading === uploadKey}
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const url = await uploadImage(file, uploadKey);
+                    if (url) {
+                      const next = [...items];
+                      next[i] = { ...next[i], image_url: url };
+                      onChange(next);
+                    }
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              <input
+                value={item.image_url ?? ""}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...next[i], image_url: e.target.value };
+                  onChange(next);
+                }}
+                placeholder="...o pega una URL de imagen"
+                className={inputClass}
+              />
+              {item.image_url && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = [...items];
+                    next[i] = { ...next[i], image_url: "" };
+                    onChange(next);
+                  }}
+                  className="text-red-500 text-xs flex items-center gap-1"
+                >
+                  <FaTrash size={10} /> Quitar imagen
+                </button>
+              )}
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <input
+                value={item.link ?? ""}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...next[i], link: e.target.value };
+                  onChange(next);
+                }}
+                placeholder="Enlace (opcional, ej: /proyecto_x)"
+                className={inputClass}
+              />
+              <input
+                value={item.linkLabel ?? ""}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...next[i], linkLabel: e.target.value };
+                  onChange(next);
+                }}
+                placeholder="Texto del botón (ej: Ver Detalles →)"
+                className={inputClass}
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              Color del título
+              <input
+                type="color"
+                value={item.color || "#2563eb"}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...next[i], color: e.target.value };
+                  onChange(next);
+                }}
+                className="w-10 h-8 cursor-pointer"
+              />
+            </label>
+          </ItemShell>
+        );
+      })}
       <AddButton
         onClick={() =>
           onChange([...items, { title: "", description: "", link: "", linkLabel: "" }])

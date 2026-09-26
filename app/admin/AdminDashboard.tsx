@@ -477,7 +477,7 @@ export default function AdminDashboard({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {(
                     [
-                      ["primary_color", "Primario"],
+                      ["primary_color", "Título"],
                       ["secondary_color", "Secundario"],
                       ["background_light", "Fondo claro"],
                       ["background_dark", "Fondo oscuro"],
@@ -1188,7 +1188,7 @@ export default function AdminDashboard({
                   onChange={(next) => set("stack_items", next)}
                 />
               </FieldRow>
-              <FieldRow label="Color de los íconos (independiente del color Primario)">
+              <FieldRow label="Color de los íconos (independiente del color Título)">
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
@@ -1198,7 +1198,7 @@ export default function AdminDashboard({
                   />
                   <span className="text-xs text-gray-500">
                     Este color solo afecta los íconos de esta sección; cambiar el
-                    color &quot;Primario&quot; en Colores ya no lo modifica.
+                    color &quot;Título&quot; en Colores ya no lo modifica.
                   </span>
                 </div>
               </FieldRow>
@@ -1226,6 +1226,8 @@ export default function AdminDashboard({
                 <ProjectItemsEditor
                   items={settings.projects_items}
                   onChange={(next) => set("projects_items", next)}
+                  uploadImage={uploadImage}
+                  uploading={uploading}
                 />
               </FieldRow>
             </section>

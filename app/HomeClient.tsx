@@ -430,7 +430,9 @@ transition duration-300 rounded-xl p-4"
             >
               {getIcon(skill.icon)}
             </div>
-            <p className="font-semibold text-foreground">{skill.name}</p>
+            <p className="font-semibold text-foreground text-center break-words max-w-full">
+              {skill.name}
+            </p>
           </MotionDiv>
         ))}
       </div>
@@ -491,6 +493,14 @@ transition duration-300 rounded-xl p-4"
       >
         {settings.projects_items.map((project, i) => (
           <MotionDiv enabled={fx} key={i} whileHover={{ scale: 1.04 }} className="card">
+            {project.image_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={project.image_url}
+                alt={project.title || "Proyecto"}
+                className="w-full h-40 object-cover rounded-lg mb-4"
+              />
+            )}
             <h3
               className="text-2xl font-semibold"
               style={project.color ? { color: project.color } : undefined}
@@ -724,7 +734,7 @@ transition duration-300 rounded-xl p-4"
           style={{
             // Si no se definió un color propio para el nombre del sitio,
             // usa el color de texto general (independiente del color
-            // "Primario", que solo se usa como acento en otras secciones).
+            // "Título", que solo se usa como acento en otras secciones).
             ...(settings.typography.site_title.color
               ? { color: settings.typography.site_title.color }
               : {}),
