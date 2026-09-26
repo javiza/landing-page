@@ -9,6 +9,9 @@ export type ProjectItem = {
   color?: string;
   // Imagen opcional del proyecto (subida desde el dispositivo o URL pegada).
   image_url?: string;
+  // Ubicación opcional del proyecto (dirección o nombre del lugar). Si se
+  // completa, se muestra un mapa de Google Maps embebido en la tarjeta.
+  location?: string;
 };
 
 // Sección 100% personalizada creada desde el panel: título libre +

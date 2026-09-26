@@ -418,6 +418,37 @@ export function ProjectItemsEditor({
                 className={inputClass}
               />
             </div>
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-foreground/70">
+                Ubicación (opcional, ej: un proyecto de construcción, un local,
+                un evento). Si la completas, se muestra un mapa de Google Maps
+                en la tarjeta.
+              </p>
+              <input
+                value={item.location ?? ""}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...next[i], location: e.target.value };
+                  onChange(next);
+                }}
+                placeholder="Dirección o nombre del lugar (ej: Av. Siempre Viva 123, Santiago)"
+                className={inputClass}
+              />
+              {item.location && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = [...items];
+                    next[i] = { ...next[i], location: "" };
+                    onChange(next);
+                  }}
+                  className="text-red-500 text-xs flex items-center gap-1"
+                >
+                  <FaTrash size={10} /> Quitar ubicación
+                </button>
+              )}
+            </div>
             <label className="flex items-center gap-2 text-sm">
               Color del título
               <input

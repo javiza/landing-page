@@ -510,6 +510,22 @@ transition duration-300 rounded-xl p-4"
 
             <p className="mt-3 text-foreground/85 whitespace-pre-line">{project.description}</p>
 
+            {project.location && (
+              <div className="mt-4 rounded-lg overflow-hidden border border-card-border">
+                <iframe
+                  title={`Ubicación de ${project.title || "proyecto"}`}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(
+                    project.location
+                  )}&output=embed`}
+                  width="100%"
+                  height="220"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
+
             {project.link && (
               <Link
                 href={project.link}
