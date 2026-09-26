@@ -1188,6 +1188,20 @@ export default function AdminDashboard({
                   onChange={(next) => set("stack_items", next)}
                 />
               </FieldRow>
+              <FieldRow label="Color de los íconos (independiente del color Primario)">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={settings.stack_icon_color || "#2563eb"}
+                    onChange={(e) => set("stack_icon_color", e.target.value)}
+                    className="w-16 h-10 cursor-pointer"
+                  />
+                  <span className="text-xs text-gray-500">
+                    Este color solo afecta los íconos de esta sección; cambiar el
+                    color &quot;Primario&quot; en Colores ya no lo modifica.
+                  </span>
+                </div>
+              </FieldRow>
             </section>
           )}
 

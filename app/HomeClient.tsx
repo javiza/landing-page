@@ -424,7 +424,12 @@ border border-card-border
 shadow-md hover:shadow-xl hover:-translate-y-1
 transition duration-300 rounded-xl p-4"
           >
-            <div className="text-4xl text-brand">{getIcon(skill.icon)}</div>
+            <div
+              className="text-4xl"
+              style={{ color: settings.stack_icon_color || "#2563eb" }}
+            >
+              {getIcon(skill.icon)}
+            </div>
             <p className="font-semibold text-foreground">{skill.name}</p>
           </MotionDiv>
         ))}
@@ -696,24 +701,33 @@ transition duration-300 rounded-xl p-4"
           {/* Tamaño editable desde el panel (logo_width, en px). El alto es
               automático para no deformar la imagen, y max-width evita que
               se salga de la pantalla en móvil. <img> plano (no next/image)
-              para que también funcionen URLs pegadas de cualquier dominio. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={resolvedTheme === "dark" ? settings.logo_light_url : settings.logo_dark_url}
-            alt="Logo"
-            style={{
-              width: `${settings.logo_width || DEFAULT_SETTINGS.logo_width}px`,
-              maxWidth: "100%",
-              height: "auto",
-            }}
-          />
+              para que también funcionen URLs pegadas de cualquier dominio.
+              Solo se muestra si hay un logo cargado para el tema actual;
+              si está vacío, no se renderiza nada (en vez de un ícono roto). */}
+          {(resolvedTheme === "dark" ? settings.logo_light_url : settings.logo_dark_url) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={resolvedTheme === "dark" ? settings.logo_light_url : settings.logo_dark_url}
+              alt="Logo"
+              style={{
+                width: `${settings.logo_width || DEFAULT_SETTINGS.logo_width}px`,
+                maxWidth: "100%",
+                height: "auto",
+              }}
+            />
+          )}
         </MotionDiv>
 
         {/* TITULO PRINCIPAL */}
         <h2
-          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold max-w-3xl"
+          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold max-w-3xl text-foreground"
           style={{
-            color: settings.typography.site_title.color || settings.primary_color,
+            // Si no se definió un color propio para el nombre del sitio,
+            // usa el color de texto general (independiente del color
+            // "Primario", que solo se usa como acento en otras secciones).
+            ...(settings.typography.site_title.color
+              ? { color: settings.typography.site_title.color }
+              : {}),
             fontFamily: siteTitleFontFamily(settings),
             ...(settings.typography.site_title.font_size > 0
               ? { fontSize: `${settings.typography.site_title.font_size}px` }

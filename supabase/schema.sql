@@ -75,6 +75,7 @@ alter table site_settings add column if not exists services_cta_href text defaul
 
 alter table site_settings add column if not exists stack_title text default 'Habilidades y Especialidades';
 alter table site_settings add column if not exists stack_items jsonb default '[]';
+alter table site_settings add column if not exists stack_icon_color text default '#2563eb';
 
 alter table site_settings add column if not exists projects_title text default 'Proyectos y Casos Destacados';
 alter table site_settings add column if not exists projects_items jsonb default '[]';

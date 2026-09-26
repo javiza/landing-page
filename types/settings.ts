@@ -156,6 +156,8 @@ export type SiteSettings = {
   // Habilidades / Especialidades (grid de íconos, aplica a cualquier rubro)
   stack_title: string;
   stack_items: SkillItem[];
+  // Color de los íconos de habilidades, independiente del color Primario.
+  stack_icon_color: string;
 
   // Proyectos / Casos / Trabajos realizados
   projects_title: string;
@@ -343,6 +345,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     { icon: "code", name: "Especialidad 3" },
     { icon: "code", name: "Especialidad 4" },
   ],
+  stack_icon_color: "#2563eb",
 
   projects_title: "Proyectos y Casos Destacados",
   projects_items: [
