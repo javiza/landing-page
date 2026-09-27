@@ -477,18 +477,20 @@ export default function AdminDashboard({
                   color de los recuadros/módulos que van encima (habilidades,
                   servicios, proyectos). Usa uno claramente distinto al
                   fondo de su mismo tema para que no se confundan.
-                  &quot;Subrayado de título&quot; y &quot;Título&quot; son
+                  &quot;Subrayado de título&quot; y &quot;Títulos&quot; son
                   independientes entre sí: el primero es la línea/acento
                   decorativo bajo el título principal y el banner; el segundo
-                  es el color de los títulos reales (servicios, noticias,
-                  texto de enfoque).
+                  es el color de TODOS los títulos reales del sitio (Sobre mí,
+                  Servicios, Habilidades, Proyectos, Noticias, Contacto, texto
+                  de enfoque, etc.) — excepto el título principal de la
+                  portada / navbar, que tiene su propio color independiente
+                  más abajo, en &quot;Portada (Hero)&quot;.
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {(
                     [
                       ["primary_color", "Subrayado de título"],
-                      ["title_color", "Título"],
-                      ["secondary_color", "Secundario"],
+                      ["title_color", "Títulos"],
                       ["background_light", "Fondo claro"],
                       ["background_dark", "Fondo oscuro"],
                       ["card_bg_light", "Tarjetas (claro)"],
@@ -1250,7 +1252,7 @@ export default function AdminDashboard({
                   uploading={uploading}
                 />
               </FieldRow>
-              <FieldRow label="Color de los íconos (independiente del color Título)">
+              <FieldRow label="Color de los íconos (independiente del color Títulos)">
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
@@ -1260,7 +1262,7 @@ export default function AdminDashboard({
                   />
                   <span className="text-xs text-[var(--admin-hint)]">
                     Este color solo afecta los íconos de esta sección; cambiar el
-                    color &quot;Título&quot; en Colores ya no lo modifica.
+                    color &quot;Títulos&quot; en Colores ya no lo modifica.
                   </span>
                 </div>
               </FieldRow>

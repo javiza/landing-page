@@ -14,7 +14,6 @@
 create table if not exists site_settings (
   id int primary key default 1,
   primary_color text default '#2563eb',
-  secondary_color text default '#9333ea',
   background_light text default '#f5f7fa',
   background_dark text default '#0b0722',
   font_family text default 'geist',
@@ -48,10 +47,16 @@ alter table site_settings add column if not exists browser_tab_title text defaul
 alter table site_settings add column if not exists site_name text default 'Tu Nombre o Negocio';
 alter table site_settings add column if not exists meta_description text default 'Sitio web profesional para presentar tus servicios, tu experiencia y tus datos de contacto.';
 
--- Color de los títulos reales (servicios, noticias, texto de enfoque),
--- independiente de "primary_color" (que ahora se usa solo como acento:
+-- Color de TODOS los títulos del sitio (Sobre mí, Servicios, Habilidades,
+-- Proyectos, Noticias, Contacto, texto de enfoque, etc.), excepto el
+-- título principal de la portada / navbar, que es independiente.
+-- Independiente de "primary_color" (que ahora se usa solo como acento:
 -- subrayado del título principal, banner, etc.).
 alter table site_settings add column if not exists title_color text default '#2563eb';
+
+-- "secondary_color" quedó eliminado del panel y del código: ya no se usa
+-- en ningún lugar del sitio. Se elimina la columna en bases existentes.
+alter table site_settings drop column if exists secondary_color;
 
 -- Color de los textos de ayuda/descripciones del panel de administración
 -- (no afecta el sitio público, solo cómo se ve el panel para el admin).

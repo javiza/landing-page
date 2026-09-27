@@ -90,12 +90,13 @@ export type SiteSettings = {
   // Colores
   // "primary_color" (etiqueta "Subrayado de título" en el panel) es un
   // acento decorativo: la línea bajo el título principal, el acento del
-  // banner/slider, etc. "title_color" (etiqueta "Título") es el color de
-  // los títulos reales (título de cada servicio, de cada noticia, texto
-  // de enfoque). Son independientes entre sí a propósito.
+  // banner/slider, etc. "title_color" (etiqueta "Títulos") es el color
+  // de TODOS los títulos del sitio (Sobre mí, Servicios, Habilidades,
+  // Proyectos, Noticias, Contacto, texto de enfoque, etc.), excepto el
+  // título principal de la portada / navbar, que es independiente. Son
+  // independientes entre sí a propósito.
   primary_color: string;
   title_color: string;
-  secondary_color: string;
   background_light: string;
   background_dark: string;
 
@@ -266,7 +267,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 
   primary_color: "#2563eb",
   title_color: "#2563eb",
-  secondary_color: "#9333ea",
   background_light: "#f5f7fa",
   background_dark: "#0b0722",
 

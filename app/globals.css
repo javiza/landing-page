@@ -12,7 +12,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand-primary);
-  --color-brand-2: var(--brand-secondary);
   --color-card: var(--card-bg);
   --color-card-border: var(--card-border);
   --font-sans: var(--font-site), system-ui, sans-serif;
@@ -27,7 +26,6 @@
   --background: #f5f7fa;
   --foreground: #0f0f0f;
   --brand-primary: #2563eb;
-  --brand-secondary: #9333ea;
 
   --card-bg: #ffffff;
   /* El borde de las tarjetas se calcula a partir del color de texto,
@@ -83,24 +81,24 @@ body {
   font-weight: 800;
   text-align: center;
 
-  color: var(--foreground);
-
   text-shadow:
       0 0 10px rgba(255, 255, 255, 0.1),
       0 0 18px rgba(120, 80, 255, 0.25);
 }
 
 /* ------------------------------
-   TIPOGRAFÍA DE ENCABEZADOS
+   TIPOGRAFÍA Y COLOR DE TÍTULOS
    --font-heading lo llena layout.tsx según lo configurado en el panel
    admin (Tipografía, rol "Encabezados"). Si el admin no elige nada
    queda igual a la tipografía del texto general, así el sitio no
    cambia hasta que se personalice a propósito.
-   A propósito NO se toca "color" acá: los encabezados de sección
-   siempre usan el color de texto general (heredado de <body>). El
-   único título con color propio editable es el título principal de
-   la portada (h2.hero-title, ver más abajo), que es independiente de
-   esta regla y de cualquier otro título del sitio.
+   --title-color viene del campo "Títulos" (settings.title_color) del
+   panel: se aplica a TODO título o frase del sitio que sea un h1-h4
+   o tenga la clase .title-section (Sobre mí, Servicios, Habilidades,
+   Proyectos, Noticias, Contacto, etc.), de forma pareja en un solo
+   lugar. El único título que NO usa este color es el título principal
+   de la portada / navbar (h2.hero-title, ver más abajo), que es
+   independiente de este y de cualquier otro título del sitio.
 ------------------------------ */
 h1,
 h2,
@@ -108,13 +106,14 @@ h3,
 h4,
 .title-section {
   font-family: var(--font-heading, var(--font-site));
+  color: var(--title-color, inherit);
 }
 
-/* El título principal de la portada nunca debe heredar nada de la
-   regla de encabezados de arriba: su fuente y su color los define
+/* El título principal de la portada / navbar nunca debe heredar nada
+   de la regla de títulos de arriba: su fuente y su color los define
    directamente HomeClient.tsx vía "style" inline (typography.site_title),
-   así queda 100% independiente de "Encabezados de sección" y de
-   cualquier otro título del sitio. */
+   así queda 100% independiente del color "Títulos" y de cualquier otro
+   título del sitio. */
 h2.hero-title {
   font-family: inherit;
   color: inherit;
