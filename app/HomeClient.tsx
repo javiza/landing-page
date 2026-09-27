@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence, type HTMLMotionProps } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { FaLink, FaEnvelope, FaPhoneAlt, FaTimes } from "react-icons/fa";
+import { FaLink, FaEnvelope, FaPhoneAlt, FaTimes, FaChevronDown } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
 import LanguageSwitcher from "./components/LanguageSwitcher";
@@ -245,6 +245,19 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [expandedNewsImage]);
+
+  // Noticias "retraídas" (colapsadas) por el visitante: al hacer click en
+  // una tarjeta, se contrae mostrando solo el título; un segundo click la
+  // vuelve a expandir. Empiezan todas expandidas (como antes).
+  const [collapsedNews, setCollapsedNews] = useState<Set<number>>(new Set());
+  function toggleNewsCollapsed(i: number) {
+    setCollapsedNews((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  }
   useEffect(() => {
     // Se hace una sola vez al montar, para sincronizar con localStorage /
     // el idioma del navegador (no accesibles durante el render del
@@ -531,28 +544,59 @@ transition duration-300 rounded-xl p-4"
 
   // Tarjeta de una noticia (se reutiliza tanto en la columna fija de
   // escritorio como en el listado que aparece al final de las secciones
-  // en celular). Si tiene imagen, se puede hacer click para ampliarla.
+  // en celular). Si tiene imagen, se puede hacer click sobre ella para
+  // ampliarla. Haciendo click en cualquier otra parte de la tarjeta, esta
+  // se retrae (muestra solo el título) y un segundo click la expande.
   function newsCard(n: SiteSettings["news"][number], i: number) {
+    const collapsed = collapsedNews.has(i);
     return (
-      <div key={i} className="card !p-4">
-        {n.image_url && (
-          <button
-            type="button"
-            onClick={() => setExpandedNewsImage({ url: n.image_url as string, alt: n.title })}
-            className="block w-full mb-3 cursor-zoom-in"
-            aria-label={t("news_expand_image")}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={n.image_url}
-              alt={n.title}
-              className="w-full h-32 object-cover rounded-lg border border-card-border"
-            />
-          </button>
-        )}
-        <h3 className="text-base font-semibold text-brand">{n.title}</h3>
+      <div
+        key={i}
+        className="card !p-4 cursor-pointer select-none"
+        role="button"
+        tabIndex={0}
+        aria-expanded={!collapsed}
+        onClick={() => toggleNewsCollapsed(i)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleNewsCollapsed(i);
+          }
+        }}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-base font-semibold text-brand">{n.title}</h3>
+          <FaChevronDown
+            size={12}
+            className={`shrink-0 text-foreground/50 transition-transform ${
+              collapsed ? "" : "rotate-180"
+            }`}
+          />
+        </div>
         {n.date && <p className="text-xs text-foreground/55 mt-1">{n.date}</p>}
-        <p className="mt-2 text-sm text-foreground/85">{n.content}</p>
+        {!collapsed && (
+          <>
+            {n.image_url && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedNewsImage({ url: n.image_url as string, alt: n.title });
+                }}
+                className="block w-full mt-3 cursor-zoom-in"
+                aria-label={t("news_expand_image")}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={n.image_url}
+                  alt={n.title}
+                  className="w-full h-32 object-cover rounded-lg border border-card-border"
+                />
+              </button>
+            )}
+            <p className="mt-2 text-sm text-foreground/85">{n.content}</p>
+          </>
+        )}
       </div>
     );
   }
