@@ -486,7 +486,7 @@ export function SkillItemsEditor({
                   link, o editado) */}
               {!item.custom_image_url ? (
                 <div className="space-y-1.5 pt-1 border-t border-gray-200 dark:border-purple-700/30">
-                  <p className="text-[11px] text-foreground/60">
+                  <p className="text-[11px] text-[var(--admin-hint)]">
                     ¿No está el ícono que buscas? Usa tu propio logo:
                   </p>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -807,7 +807,7 @@ export function TypographyRoleEditor({
     <div className="space-y-3 border border-gray-200 dark:border-purple-700/40 rounded-xl p-4">
       <div>
         <p className="text-sm font-semibold">{label}</p>
-        {hint && <p className="text-xs text-foreground/60 mt-0.5">{hint}</p>}
+        {hint && <p className="text-xs text-[var(--admin-hint)] mt-0.5">{hint}</p>}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
@@ -902,7 +902,7 @@ export function TypographyRoleEditor({
             }}
           />
           {value.custom_font_url && (
-            <p className="text-xs text-foreground/60 break-all">
+            <p className="text-xs text-[var(--admin-hint)] break-all">
               Archivo actual: {value.custom_font_url}
             </p>
           )}

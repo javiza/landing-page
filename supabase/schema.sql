@@ -48,6 +48,15 @@ alter table site_settings add column if not exists browser_tab_title text defaul
 alter table site_settings add column if not exists site_name text default 'Tu Nombre o Negocio';
 alter table site_settings add column if not exists meta_description text default 'Sitio web profesional para presentar tus servicios, tu experiencia y tus datos de contacto.';
 
+-- Color de los títulos reales (servicios, noticias, texto de enfoque),
+-- independiente de "primary_color" (que ahora se usa solo como acento:
+-- subrayado del título principal, banner, etc.).
+alter table site_settings add column if not exists title_color text default '#2563eb';
+
+-- Color de los textos de ayuda/descripciones del panel de administración
+-- (no afecta el sitio público, solo cómo se ve el panel para el admin).
+alter table site_settings add column if not exists admin_hint_color text default '#6b7280';
+
 alter table site_settings add column if not exists default_theme text default 'light';
 alter table site_settings add column if not exists enable_effects boolean default true;
 

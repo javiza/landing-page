@@ -400,7 +400,9 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
           {settings.about_focus_text && (
             <div className="mt-6 p-4 rounded-xl bg-brand-2/10 border border-brand-2/20">
               <p className="text-sm font-medium text-foreground/85">{settings.about_focus_label}</p>
-              <p className="font-bold text-brand">{settings.about_focus_text}</p>
+              <p className="font-bold" style={{ color: settings.title_color }}>
+                {settings.about_focus_text}
+              </p>
             </div>
           )}
           {settings.about_social_title && (
@@ -461,7 +463,9 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
       <div className="grid md:grid-cols-3 gap-6">
         {settings.services_items.map((item, i) => (
           <MotionDiv enabled={fx} key={i} whileHover={{ scale: 1.04 }} className="card">
-            <h3 className="text-xl font-semibold text-brand">{item.title}</h3>
+            <h3 className="text-xl font-semibold" style={{ color: settings.title_color }}>
+              {item.title}
+            </h3>
             <p className="mt-3 text-foreground/85 whitespace-pre-line">{item.description}</p>
           </MotionDiv>
         ))}
@@ -571,7 +575,9 @@ transition duration-300 rounded-xl p-4"
         }}
       >
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-semibold text-brand">{n.title}</h3>
+          <h3 className="text-base font-semibold" style={{ color: settings.title_color }}>
+          {n.title}
+        </h3>
           <FaChevronDown
             size={12}
             className={`shrink-0 text-foreground/50 transition-transform ${

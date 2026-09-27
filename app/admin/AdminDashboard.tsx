@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaPalette,
@@ -302,7 +302,10 @@ export default function AdminDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div
+      className="min-h-screen bg-background text-foreground"
+      style={{ "--admin-hint": settings.admin_hint_color } as CSSProperties}
+    >
       {/* ================= TOP BAR ================= */}
       <header className="sticky top-0 z-40 border-b border-gray-200 dark:border-purple-800/50 bg-white/90 dark:bg-[#0b0722]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
@@ -386,7 +389,7 @@ export default function AdminDashboard({
             <>
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🖼️ Favicon</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--admin-hint)]">
                   Opcional. Es el ícono pequeño que aparece en la pestaña del navegador. Usa una
                   imagen cuadrada (.png o .ico) para mejores resultados. Si no subes uno,
                   se usa el que trae el sitio por defecto.
@@ -450,23 +453,6 @@ export default function AdminDashboard({
                     )}
                   </div>
                 </div>
-                <FieldRow label="Nombre del sitio / negocio (se usa en el título y en SEO)">
-                  <input
-                    value={settings.site_name}
-                    onChange={(e) => set("site_name", e.target.value)}
-                    className={inputClass}
-                  />
-                </FieldRow>
-                <TypographyRoleEditor
-                  label="Tipografía del nombre del sitio"
-                  hint="Se aplica al título principal (nombre grande) que se ve en la portada. Tamaño, tipo de letra y una tipografía propia si la tienes."
-                  value={settings.typography.site_title}
-                  onChange={(patch) => setTypography("site_title", patch)}
-                  allowInherit
-                  showSize
-                  showColor
-                  onUploadFont={uploadFontFile}
-                />
                 <FieldRow label="Título de la pestaña del navegador">
                   <input
                     value={settings.browser_tab_title}
@@ -486,16 +472,22 @@ export default function AdminDashboard({
 
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🎨 Colores</h2>
-                <p className="text-sm text-foreground/60">
+                <p className="text-sm text-[var(--admin-hint)]">
                   &quot;Fondo&quot; es el color de la página. &quot;Tarjetas&quot; es el
                   color de los recuadros/módulos que van encima (habilidades,
                   servicios, proyectos). Usa uno claramente distinto al
                   fondo de su mismo tema para que no se confundan.
+                  &quot;Subrayado de título&quot; y &quot;Título&quot; son
+                  independientes entre sí: el primero es la línea/acento
+                  decorativo bajo el título principal y el banner; el segundo
+                  es el color de los títulos reales (servicios, noticias,
+                  texto de enfoque).
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {(
                     [
-                      ["primary_color", "Título"],
+                      ["primary_color", "Subrayado de título"],
+                      ["title_color", "Título"],
                       ["secondary_color", "Secundario"],
                       ["background_light", "Fondo claro"],
                       ["background_dark", "Fondo oscuro"],
@@ -516,11 +508,31 @@ export default function AdminDashboard({
                     </label>
                   ))}
                 </div>
+
+                <div className="pt-2 border-t border-gray-200 dark:border-purple-700/30 space-y-2">
+                  <label className="flex items-center gap-3 text-sm w-fit">
+                    <input
+                      type="color"
+                      value={settings.admin_hint_color}
+                      onChange={(e) => set("admin_hint_color", e.target.value)}
+                      className="w-16 h-10 cursor-pointer shrink-0"
+                    />
+                    Ayudas y descripciones del panel
+                  </label>
+                  <p className="text-xs text-[var(--admin-hint)]">
+                    Este color solo cambia cómo se ven, dentro de este panel de
+                    administración, los textos explicativos como este mismo (por
+                    ejemplo el de &quot;Favicon&quot;: &quot;Opcional. Es el ícono
+                    pequeño que aparece en la pestaña del navegador...&quot;). Se
+                    aplica de forma general a todas las secciones del panel y no
+                    tiene ningún efecto en el sitio público.
+                  </p>
+                </div>
               </section>
 
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🔤 Tipografía</h2>
-                <p className="text-sm text-foreground/60">
+                <p className="text-sm text-[var(--admin-hint)]">
                   Más de una decena de tipografías para elegir, además de la opción de subir
                   la tuya propia. La tipografía del <strong>nombre del sitio</strong> se
                   edita más arriba, junto a ese campo; acá se configuran los{" "}
@@ -550,7 +562,7 @@ export default function AdminDashboard({
 
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🔘 Botones</h2>
-                <p className="text-sm text-foreground/60">
+                <p className="text-sm text-[var(--admin-hint)]">
                   Estos colores y esta forma se aplican a TODOS los botones del sitio:
                   portada, servicios, redes sociales, proyectos y el formulario de
                   contacto.
@@ -647,7 +659,7 @@ export default function AdminDashboard({
                   />
                   Activar efectos visuales (partículas de fondo + animaciones)
                 </label>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[var(--admin-hint)]">
                   Desactívalo si prefieres una versión más simple y liviana del sitio,
                   sin partículas animadas ni transiciones al pasar el mouse.
                 </p>
@@ -664,7 +676,7 @@ export default function AdminDashboard({
                   />
                   Mostrar el traductor de Google en el sitio
                 </label>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[var(--admin-hint)]">
                   A diferencia del selector de idioma (que solo traduce los botones y
                   textos fijos del sitio), este widget de Google traduce TODO el
                   contenido, incluido el que vos escribís en el panel (títulos,
@@ -675,7 +687,7 @@ export default function AdminDashboard({
 
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🏷️ Logo</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--admin-hint)]">
                   Opcional. Puedes subir la imagen desde tu dispositivo o pegar directamente una
                   URL. Se usan dos versiones: una para modo claro y otra para modo
                   oscuro (si solo tienes una, puedes repetir la misma URL en ambas).
@@ -804,7 +816,7 @@ export default function AdminDashboard({
                   />
                   Activar partículas de fondo + animaciones
                 </label>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[var(--admin-hint)]">
                   Este efecto es independiente de las imágenes de fondo de abajo: puedes
                   combinarlos, usar solo uno, o apagarlos todos.
                 </p>
@@ -812,7 +824,7 @@ export default function AdminDashboard({
 
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🖼️ Fondo del inicio (Hero)</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--admin-hint)]">
                   Ambas opciones son opcionales e independientes: puedes usar una imagen,
                   un color sólido, o dejarlo todo vacío para el fondo por defecto. Si
                   cargas una imagen, esta tiene prioridad sobre el color.
@@ -896,7 +908,7 @@ export default function AdminDashboard({
                     )}
                   </div>
                   {settings.hero_bg_image_url && settings.hero_bg_color && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[var(--admin-hint)]">
                       Tienes una imagen cargada arriba, así que ella se mostrará en vez
                       de este color mientras la imagen siga puesta.
                     </p>
@@ -906,7 +918,7 @@ export default function AdminDashboard({
 
               <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🌄 Imagen de fondo de toda la página</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--admin-hint)]">
                   Opcional. Queda fija detrás de todo el sitio mientras se hace scroll,
                   por encima del color de fondo y por debajo del contenido.
                 </p>
@@ -980,6 +992,17 @@ export default function AdminDashboard({
                   className={inputClass}
                 />
               </FieldRow>
+
+              <TypographyRoleEditor
+                label="Tipografía del título principal"
+                hint="Tamaño, tipo de letra y color del título principal de arriba. Si dejas el color vacío, usa el color de texto general del sitio."
+                value={settings.typography.site_title}
+                onChange={(patch) => setTypography("site_title", patch)}
+                allowInherit
+                showSize
+                showColor
+                onUploadFont={uploadFontFile}
+              />
 
               <FieldRow label="Líneas del efecto terminal">
                 <StringListEditor
@@ -1236,7 +1259,7 @@ export default function AdminDashboard({
                     onChange={(e) => set("stack_icon_color", e.target.value)}
                     className="w-16 h-10 cursor-pointer"
                   />
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-[var(--admin-hint)]">
                     Este color solo afecta los íconos de esta sección; cambiar el
                     color &quot;Título&quot; en Colores ya no lo modifica.
                   </span>
@@ -1640,7 +1663,7 @@ export default function AdminDashboard({
           {activeTab === "order" && (
             <section className="card space-y-4">
               <h2 className="text-xl font-bold">📑 Orden de secciones del Home</h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[var(--admin-hint)]">
                 Acá está TODO lo que puede aparecer en el home: cambia el orden con las
                 flechas (o muévela directo al principio/final), elige si va alineada a
                 la izquierda, al centro o a la derecha de la página, edita el nombre de
@@ -1801,7 +1824,7 @@ export default function AdminDashboard({
                       key={c.id}
                       className="border border-gray-200 dark:border-purple-700/40 rounded-xl p-3 space-y-2 bg-gray-50/60 dark:bg-white/[0.03]"
                     >
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-[var(--admin-hint)]">
                         Sección: <span className="font-medium">{c.title}</span>
                       </p>
                       <textarea

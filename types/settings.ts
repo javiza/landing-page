@@ -88,10 +88,22 @@ export type SiteSettings = {
   meta_description: string;
 
   // Colores
+  // "primary_color" (etiqueta "Subrayado de título" en el panel) es un
+  // acento decorativo: la línea bajo el título principal, el acento del
+  // banner/slider, etc. "title_color" (etiqueta "Título") es el color de
+  // los títulos reales (título de cada servicio, de cada noticia, texto
+  // de enfoque). Son independientes entre sí a propósito.
   primary_color: string;
+  title_color: string;
   secondary_color: string;
   background_light: string;
   background_dark: string;
+
+  // Color general del texto de ayuda/descripciones del panel de
+  // administración (los párrafos grises que explican cada sección, por
+  // ejemplo la del favicon). Solo afecta cómo se ve el panel para el
+  // administrador; no tiene ningún efecto en el sitio público.
+  admin_hint_color: string;
 
   // Fondo de las tarjetas/módulos, independiente del fondo de página,
   // para que no se confundan entre sí.
@@ -253,9 +265,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     "Sitio web profesional para presentar tus servicios, tu experiencia y tus datos de contacto.",
 
   primary_color: "#2563eb",
+  title_color: "#2563eb",
   secondary_color: "#9333ea",
   background_light: "#f5f7fa",
   background_dark: "#0b0722",
+
+  admin_hint_color: "#6b7280",
 
   card_bg_light: "#ffffff",
   card_bg_dark: "#171233", // un poco más claro que el fondo oscuro, para que se distinga
