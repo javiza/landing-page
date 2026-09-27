@@ -37,6 +37,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     back_to_top: "Volver arriba",
     news_expand_image: "Ampliar imagen de la noticia",
     close_image: "Cerrar",
+    news_close: "Ocultar noticias",
+    news_reopen: "Mostrar noticias",
   },
   en: {
     theme_toggle: "Toggle theme",
@@ -56,6 +58,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     back_to_top: "Back to top",
     news_expand_image: "Enlarge news image",
     close_image: "Close",
+    news_close: "Hide news",
+    news_reopen: "Show news",
   },
   pt: {
     theme_toggle: "Alternar tema",
@@ -75,6 +79,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     back_to_top: "Voltar ao topo",
     news_expand_image: "Ampliar imagem da notícia",
     close_image: "Fechar",
+    news_close: "Ocultar notícias",
+    news_reopen: "Mostrar notícias",
   },
   hi: {
     theme_toggle: "थीम बदलें",
@@ -94,6 +100,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     back_to_top: "ऊपर जाएं",
     news_expand_image: "समाचार की तस्वीर बड़ी करें",
     close_image: "बंद करें",
+    news_close: "समाचार छिपाएं",
+    news_reopen: "समाचार दिखाएं",
   },
 };
 

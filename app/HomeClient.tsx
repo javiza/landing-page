@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence, type HTMLMotionProps } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { FaLink, FaEnvelope, FaPhoneAlt, FaTimes, FaChevronDown } from "react-icons/fa";
+import { FaLink, FaEnvelope, FaPhoneAlt, FaTimes, FaChevronDown, FaNewspaper } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
 import LanguageSwitcher from "./components/LanguageSwitcher";
@@ -258,6 +258,12 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
       return next;
     });
   }
+
+  // El visitante puede quitar por completo el bloque de noticias (puede
+  // estorbar para leer el resto de la página). Al cerrarlo queda un
+  // botón chico para volver a mostrarlo si cambia de opinión. Es un
+  // estado de esta visita, no se guarda entre recargas.
+  const [newsDismissed, setNewsDismissed] = useState(false);
   useEffect(() => {
     // Se hace una sola vez al montar, para sincronizar con localStorage /
     // el idioma del navegador (no accesibles durante el render del
@@ -614,7 +620,18 @@ transition duration-300 rounded-xl p-4"
       aria-label={settings.news_title || "Noticias"}
       className="hidden xl:flex fixed right-4 top-28 z-30 w-72 flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1"
     >
-      <h2 className="text-lg font-bold text-foreground">{settings.news_title}</h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-lg font-bold text-foreground">{settings.news_title}</h2>
+        <button
+          type="button"
+          onClick={() => setNewsDismissed(true)}
+          aria-label={t("news_close")}
+          title={t("news_close")}
+          className="shrink-0 p-1.5 rounded-full text-foreground/60 hover:text-foreground hover:bg-foreground/10 transition"
+        >
+          <FaTimes size={14} />
+        </button>
+      </div>
       {settings.news.map((n, i) => newsCard(n, i))}
     </aside>
   );
@@ -624,11 +641,35 @@ transition duration-300 rounded-xl p-4"
   // en vez de flotando a un costado.
   const newsMobileSection = (
     <section id="news-mobile" className="px-8 py-20 max-w-6xl mx-auto xl:hidden">
-      <h2 className="title-section mb-12 text-center">{settings.news_title}</h2>
+      <div className="relative max-w-md mx-auto mb-12">
+        <h2 className="title-section text-center">{settings.news_title}</h2>
+        <button
+          type="button"
+          onClick={() => setNewsDismissed(true)}
+          aria-label={t("news_close")}
+          title={t("news_close")}
+          className="absolute top-0 right-0 p-2 rounded-full text-foreground/60 hover:text-foreground hover:bg-foreground/10 transition"
+        >
+          <FaTimes size={16} />
+        </button>
+      </div>
       <div className="flex flex-col gap-6 max-w-md mx-auto">
         {settings.news.map((n, i) => newsCard(n, i))}
       </div>
     </section>
+  );
+
+  // Botón chico para volver a mostrar las noticias después de cerrarlas.
+  const newsReopenButton = (
+    <button
+      type="button"
+      onClick={() => setNewsDismissed(false)}
+      aria-label={t("news_reopen")}
+      title={t("news_reopen")}
+      className="fixed bottom-5 right-5 z-30 p-3 rounded-full shadow-lg bg-card border border-card-border text-foreground hover:scale-110 transition"
+    >
+      <FaNewspaper size={16} />
+    </button>
   );
 
   const projectsSection = (
@@ -891,7 +932,7 @@ transition duration-300 rounded-xl p-4"
 
       {/* NOTICIAS: columna fija al costado derecho de la página (opcional,
           la activa el administrador desde el panel). */}
-      {settings.show_news && settings.news.length > 0 && newsSidebar}
+      {settings.show_news && settings.news.length > 0 && !newsDismissed && newsSidebar}
 
       {/* TRADUCTOR AUTOMÁTICO DE GOOGLE (traduce también el contenido libre
           que escribe el administrador, no solo los textos fijos) */}
@@ -1023,7 +1064,10 @@ transition duration-300 rounded-xl p-4"
       {/* NOTICIAS EN CELULAR/TABLET: en escritorio van en la columna fija
           (newsSidebar, más arriba); acá, al final de todas las secciones,
           para pantallas angostas donde esa columna se oculta. */}
-      {settings.show_news && settings.news.length > 0 && newsMobileSection}
+      {settings.show_news && settings.news.length > 0 && !newsDismissed && newsMobileSection}
+
+      {/* Botón para volver a mostrar las noticias si el visitante las cerró */}
+      {settings.show_news && settings.news.length > 0 && newsDismissed && newsReopenButton}
 
       {/* FOOTER */}
       <footer
