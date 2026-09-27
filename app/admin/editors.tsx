@@ -474,7 +474,7 @@ export function SkillItemsEditor({
                   value={item.name}
                   onChange={(e) => updateItem(i, { name: e.target.value })}
                   placeholder="Nombre (ej: Docker)"
-                  className={inputClass}
+                  className={inputClass + " flex-1 min-w-0"}
                 />
                 <button
                   type="button"
