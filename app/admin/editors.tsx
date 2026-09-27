@@ -438,38 +438,34 @@ export function SkillItemsEditor({
           return (
             <div
               key={i}
-              className="flex flex-col gap-2 border border-gray-200 dark:border-purple-700/40 rounded-xl p-3 bg-gray-50/60 dark:bg-white/[0.03]"
+              className="flex flex-col gap-2 min-w-0 border border-gray-200 dark:border-purple-700/40 rounded-xl p-3 bg-gray-50/60 dark:bg-white/[0.03]"
             >
-              <div className="flex items-center gap-2">
-                <div className="text-xl text-blue-600 dark:text-purple-300 shrink-0 w-7 h-7 flex items-center justify-center">
-                  {item.custom_image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.custom_image_url}
-                      alt={item.name || "Logo"}
-                      className="w-7 h-7 object-contain"
-                    />
-                  ) : (
-                    getIcon(item.icon)
-                  )}
+              <div className="flex items-center gap-2 min-w-0">
+                {/* Selector de ícono: se envuelve en un contenedor de ancho
+                    fijo con overflow-hidden porque un <select> nativo no
+                    respeta el ancho de CSS cuando el texto de la opción es
+                    largo (recorta feo o empuja al resto de la fila). El
+                    cuadro de vista previa del ícono que iba aquí se quitó:
+                    era redundante, ya que el emoji del select ya lo muestra. */}
+                <div className="w-24 sm:w-28 shrink-0 overflow-hidden rounded-lg">
+                  <select
+                    value={item.icon}
+                    onChange={(e) => updateItem(i, { icon: e.target.value })}
+                    className={inputClass + " w-full"}
+                    disabled={Boolean(item.custom_image_url)}
+                    title={
+                      item.custom_image_url
+                        ? "Quita el logo personalizado para volver a elegir un ícono"
+                        : undefined
+                    }
+                  >
+                    {ICON_OPTIONS.map((opt) => (
+                      <option key={opt.key} value={opt.key}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <select
-                  value={item.icon}
-                  onChange={(e) => updateItem(i, { icon: e.target.value })}
-                  className={inputClass + " w-28 shrink-0"}
-                  disabled={Boolean(item.custom_image_url)}
-                  title={
-                    item.custom_image_url
-                      ? "Quita el logo personalizado para volver a elegir un ícono"
-                      : undefined
-                  }
-                >
-                  {ICON_OPTIONS.map((opt) => (
-                    <option key={opt.key} value={opt.key}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
                 <input
                   value={item.name}
                   onChange={(e) => updateItem(i, { name: e.target.value })}
