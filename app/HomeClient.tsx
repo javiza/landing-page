@@ -994,13 +994,15 @@ transition duration-300 rounded-xl p-4"
           )}
         </MotionDiv>
 
-        {/* TITULO PRINCIPAL */}
+        {/* TITULO PRINCIPAL — clase "hero-title" para que quede aislado de
+            la regla global de encabezados (globals.css) y su color/tipografía
+            dependan únicamente del estilo inline de acá abajo. */}
         <h2
-          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold max-w-3xl text-foreground"
+          className="hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold max-w-3xl text-foreground"
           style={{
-            // Si no se definió un color propio para el nombre del sitio,
-            // usa el color de texto general (independiente del color
-            // "Título", que solo se usa como acento en otras secciones).
+            // Si no se definió un color propio para el título principal,
+            // usa el color de texto general (independiente del color de
+            // "Encabezados de sección" y de cualquier otro título del sitio).
             ...(settings.typography.site_title.color
               ? { color: settings.typography.site_title.color }
               : {}),

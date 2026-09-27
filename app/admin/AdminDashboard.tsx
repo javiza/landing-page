@@ -543,11 +543,10 @@ export default function AdminDashboard({
                 </p>
                 <TypographyRoleEditor
                   label="Encabezados de sección"
-                  hint="Títulos de todas las secciones del home (Sobre mí, Servicios, Habilidades, Proyectos, Noticias, Contacto, etc.)."
+                  hint="Tipo de letra de los títulos de todas las secciones del home (Sobre mí, Servicios, Habilidades, Proyectos, Noticias, Contacto, etc.). El color de estos títulos es siempre el color de texto general del sitio; el único título con color propio editable es el título principal de la portada, más abajo."
                   value={settings.typography.headings}
                   onChange={(patch) => setTypography("headings", patch)}
                   allowInherit
-                  showColor
                   onUploadFont={uploadFontFile}
                 />
                 <TypographyRoleEditor

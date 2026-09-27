@@ -222,7 +222,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const typography = settings.typography ?? DEFAULT_SETTINGS.typography;
   const bodyFont = resolveTypographyFont(typography.body, FONT_VAR.geist);
   const headingFont = resolveTypographyFont(typography.headings, bodyFont);
-  const headingColor = typography.headings.color || "inherit";
+  // El color de los encabezados de sección ya no es configurable por
+  // separado: siempre usan el color de texto general (--foreground), para
+  // que el único título con color propio sea el título principal de la
+  // portada (typography.site_title), sin fugas entre uno y otro.
 
   // @font-face para las tipografías propias subidas desde el panel (una
   // por rol como máximo). Se deduplican por nombre de familia por si dos
@@ -264,7 +267,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       --card-bg: ${settings.card_bg_light};
       --font-site: ${bodyFont};
       --font-heading: ${headingFont};
-      --heading-color: ${headingColor};
     }
     .dark {
       --background: ${settings.background_dark};
