@@ -224,9 +224,12 @@ export default function AdminDashboard({
   // Este arreglo siempre tiene TODAS las claves, en el orden guardado y
   // con lo que falte agregado al final, para que el panel muestre y
   // reordene absolutamente todo.
-  const fullOrder = [...settings.section_order];
+  // "news" ya no es una sección más del orden vertical: ahora se muestra
+  // siempre como columna fija al costado derecho de la página (ver pestaña
+  // "Noticias"), así que se excluye de esta lista de orden/alineación.
+  const fullOrder = [...settings.section_order].filter((key) => key !== "news");
   for (const key of BUILTIN_SECTION_KEYS) {
-    if (!fullOrder.includes(key)) fullOrder.push(key);
+    if (key !== "news" && !fullOrder.includes(key)) fullOrder.push(key);
   }
   for (const custom of settings.custom_sections) {
     const key = `custom:${custom.id}`;

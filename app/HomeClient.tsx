@@ -516,29 +516,27 @@ transition duration-300 rounded-xl p-4"
     </section>
   );
 
-  const newsSection = (
-    <section
-      key="news"
+  // Noticias: ya NO es una sección más del flujo vertical del home. Se
+  // muestra como una columna fija al costado derecho de la página (una
+  // tarjeta encima de otra), visible mientras se navega el sitio. Solo
+  // aparece en pantallas grandes (xl+) para no tapar el contenido en
+  // celular/tablet; ahí el visitante puede seguir viendo las noticias
+  // más abajo en el listado normal a través del footer si hiciera falta.
+  const newsSidebar = (
+    <aside
       id="news"
-      className="px-8 py-20 max-w-6xl mx-auto"
-      style={sectionAlignStyle("news")}
+      aria-label={settings.news_title || "Noticias"}
+      className="hidden xl:flex fixed right-4 top-28 z-30 w-72 flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1"
     >
-      <h2
-        className="title-section mb-12"
-        style={{ textAlign: sectionAlignStyle("news").textAlign ?? "center" }}
-      >
-        {settings.news_title}
-      </h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        {settings.news.map((n, i) => (
-          <div key={i} className="card">
-            <h3 className="text-xl font-semibold text-brand">{n.title}</h3>
-            {n.date && <p className="text-xs text-foreground/55 mt-1">{n.date}</p>}
-            <p className="mt-3 text-foreground/85">{n.content}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+      <h2 className="text-lg font-bold text-foreground">{settings.news_title}</h2>
+      {settings.news.map((n, i) => (
+        <div key={i} className="card !p-4">
+          <h3 className="text-base font-semibold text-brand">{n.title}</h3>
+          {n.date && <p className="text-xs text-foreground/55 mt-1">{n.date}</p>}
+          <p className="mt-2 text-sm text-foreground/85">{n.content}</p>
+        </div>
+      ))}
+    </aside>
   );
 
   const projectsSection = (
@@ -672,7 +670,6 @@ transition duration-300 rounded-xl p-4"
     services: servicesSection,
     stack: stackSection,
     banner: bannerSection,
-    news: newsSection,
     projects: projectsSection,
     contact: contactSection,
   };
@@ -799,6 +796,10 @@ transition duration-300 rounded-xl p-4"
 
       {/* SELECTOR DE IDIOMA */}
       <LanguageSwitcher lang={lang} onChange={changeLang} label={t("language_toggle")} />
+
+      {/* NOTICIAS: columna fija al costado derecho de la página (opcional,
+          la activa el administrador desde el panel). */}
+      {settings.show_news && settings.news.length > 0 && newsSidebar}
 
       {/* TRADUCTOR AUTOMÁTICO DE GOOGLE (traduce también el contenido libre
           que escribe el administrador, no solo los textos fijos) */}
