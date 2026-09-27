@@ -115,6 +115,7 @@ alter table site_settings add column if not exists footer_email text default '';
 alter table site_settings add column if not exists footer_phone text default '';
 alter table site_settings add column if not exists footer_show_section_links boolean default true;
 alter table site_settings add column if not exists footer_links jsonb default '[]';
+alter table site_settings add column if not exists google_translate_enabled boolean default false;
 
 -- 1.7) Títulos de sección editables desde el panel.
 alter table site_settings add column if not exists about_section_title text default 'Sobre mí';

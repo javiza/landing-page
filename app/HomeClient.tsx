@@ -8,6 +8,7 @@ import { FaLink, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
 import LanguageSwitcher from "./components/LanguageSwitcher";
+import GoogleTranslate from "./components/GoogleTranslate";
 import { DEFAULT_SETTINGS, type SiteSettings } from "../types/settings";
 import { getIcon } from "../lib/icons";
 import { FONT_VAR } from "../lib/fonts";
@@ -790,6 +791,10 @@ transition duration-300 rounded-xl p-4"
 
       {/* SELECTOR DE IDIOMA */}
       <LanguageSwitcher lang={lang} onChange={changeLang} label={t("language_toggle")} />
+
+      {/* TRADUCTOR AUTOMÁTICO DE GOOGLE (traduce también el contenido libre
+          que escribe el administrador, no solo los textos fijos) */}
+      {settings.google_translate_enabled && <GoogleTranslate pageLanguage="es" />}
 
       {/* HERO */}
       <section className="relative isolate flex flex-col items-center text-center pt-24 px-6 gap-4 overflow-hidden">

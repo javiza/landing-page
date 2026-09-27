@@ -7,12 +7,13 @@
 // idioma de cada campo, lo que puede agregarse más adelante si se
 // necesita.
 
-export type LangCode = "es" | "en" | "pt";
+export type LangCode = "es" | "en" | "pt" | "hi";
 
 export const LANGUAGES: { code: LangCode; label: string; flag: string }[] = [
   { code: "es", label: "Español", flag: "🇪🇸" },
   { code: "en", label: "English", flag: "🇺🇸" },
   { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "hi", label: "हिन्दी", flag: "🇮🇳" },
 ];
 
 type Dict = Record<string, string>;
@@ -69,6 +70,23 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     form_error: "Erro ao enviar.",
     back_to_top: "Voltar ao topo",
   },
+  hi: {
+    theme_toggle: "थीम बदलें",
+    language_toggle: "भाषा बदलें",
+    prev_image: "पिछली तस्वीर",
+    next_image: "अगली तस्वीर",
+    go_to_image: "तस्वीर पर जाएं",
+    project_alt: "प्रोजेक्ट",
+    logo_alt: "लोगो",
+    form_name: "आपका नाम",
+    form_email: "आपका ईमेल",
+    form_message: "संदेश...",
+    form_submit: "संदेश भेजें",
+    form_sending: "भेजा जा रहा है...",
+    form_success: "संदेश भेज दिया गया!",
+    form_error: "भेजने में समस्या हुई।",
+    back_to_top: "ऊपर जाएं",
+  },
 };
 
 export const LANG_STORAGE_KEY = "portafolio_lang";
@@ -82,6 +100,7 @@ export function detectDefaultLanguage(): LangCode {
   const base = raw.toLowerCase().slice(0, 2);
   if (base === "en") return "en";
   if (base === "pt") return "pt";
+  if (base === "hi") return "hi";
   return "es";
 }
 

@@ -650,6 +650,26 @@ export default function AdminDashboard({
               </section>
 
               <section className="card space-y-4">
+                <h2 className="text-xl font-bold">🌐 Traductor automático (Google)</h2>
+                <label className="flex items-center gap-3 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={settings.google_translate_enabled}
+                    onChange={(e) => set("google_translate_enabled", e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  Mostrar el traductor de Google en el sitio
+                </label>
+                <p className="text-xs text-gray-500">
+                  A diferencia del selector de idioma (que solo traduce los botones y
+                  textos fijos del sitio), este widget de Google traduce TODO el
+                  contenido, incluido el que vos escribís en el panel (títulos,
+                  descripciones, proyectos, noticias, etc.) a cualquier idioma. Aparece
+                  como un pequeño selector flotante debajo del selector de idioma.
+                </p>
+              </section>
+
+              <section className="card space-y-4">
                 <h2 className="text-xl font-bold">🏷️ Logo</h2>
                 <p className="text-sm text-gray-500">
                   Opcional. Puedes subir la imagen desde tu dispositivo o pegar directamente una

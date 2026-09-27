@@ -188,6 +188,9 @@ export type SiteSettings = {
   // Si está activo, el footer muestra automáticamente mini-enlaces a cada
   // sección visible del home (usa el título que el admin le puso a cada una).
   footer_show_section_links: boolean;
+  // Traductor automático de Google embebido en el sitio (traduce TODO el
+  // contenido, incluido el texto que escribe el administrador).
+  google_translate_enabled: boolean;
 
   // Noticias / novedades (opcional, se muestran si hay al menos una)
   news_title: string; // título de la sección completa
@@ -385,6 +388,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   footer_phone: "",
   footer_links: [],
   footer_show_section_links: true,
+  google_translate_enabled: false,
 
   news_title: "Noticias",
   news: [],
