@@ -17,6 +17,12 @@ export type ProjectItem = {
 // Sección 100% personalizada creada desde el panel: título libre +
 // texto libre. Se identifica con un id único que no cambia aunque se
 // renombre el título (así "section_order" no se rompe al renombrar).
+// Una noticia/novedad publicada por el administrador. La imagen es
+// opcional (subida desde el dispositivo o URL pegada, igual que en
+// ProjectItem); si se carga, el visitante puede hacer click para verla
+// ampliada en pantalla completa.
+export type NewsItem = { title: string; content: string; date?: string; image_url?: string };
+
 export type CustomSection = {
   id: string;
   title: string;
@@ -194,7 +200,7 @@ export type SiteSettings = {
 
   // Noticias / novedades (opcional, se muestran si hay al menos una)
   news_title: string; // título de la sección completa
-  news: { title: string; content: string; date?: string }[];
+  news: NewsItem[];
 
   // Visibilidad de secciones (todo opcional, como pidió el usuario)
   show_about: boolean;

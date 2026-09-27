@@ -23,6 +23,7 @@ import {
   FaImage,
   FaPlus,
   FaEyeSlash,
+  FaUpload,
 } from "react-icons/fa";
 import { createClient } from "../../lib/supabase/client";
 import {
@@ -1365,47 +1366,120 @@ export default function AdminDashboard({
                 />
               </FieldRow>
 
-              {settings.news.map((n, i) => (
-                <div key={i} className="border border-gray-200 dark:border-purple-700/40 p-3 rounded-xl space-y-2">
-                  <input
-                    value={n.title}
-                    onChange={(e) => {
-                      const next = [...settings.news];
-                      next[i] = { ...next[i], title: e.target.value };
-                      set("news", next);
-                    }}
-                    placeholder="Título de la noticia"
-                    className={inputClass}
-                  />
-                  <textarea
-                    value={n.content}
-                    onChange={(e) => {
-                      const next = [...settings.news];
-                      next[i] = { ...next[i], content: e.target.value };
-                      set("news", next);
-                    }}
-                    placeholder="Contenido"
-                    rows={2}
-                    className={inputClass}
-                  />
-                  <input
-                    value={n.date ?? ""}
-                    onChange={(e) => {
-                      const next = [...settings.news];
-                      next[i] = { ...next[i], date: e.target.value };
-                      set("news", next);
-                    }}
-                    placeholder="Fecha (opcional, ej: Marzo 2026)"
-                    className={inputClass}
-                  />
-                  <button
-                    onClick={() => set("news", settings.news.filter((_, idx) => idx !== i))}
-                    className="text-red-500 text-sm flex items-center gap-1"
-                  >
-                    <FaTrash size={11} /> Eliminar noticia
-                  </button>
-                </div>
-              ))}
+              {settings.news.map((n, i) => {
+                const uploadKey = `news_image_${i}`;
+                return (
+                  <div key={i} className="border border-gray-200 dark:border-purple-700/40 p-3 rounded-xl space-y-2">
+                    <input
+                      value={n.title}
+                      onChange={(e) => {
+                        const next = [...settings.news];
+                        next[i] = { ...next[i], title: e.target.value };
+                        set("news", next);
+                      }}
+                      placeholder="Título de la noticia"
+                      className={inputClass}
+                    />
+                    <textarea
+                      value={n.content}
+                      onChange={(e) => {
+                        const next = [...settings.news];
+                        next[i] = { ...next[i], content: e.target.value };
+                        set("news", next);
+                      }}
+                      placeholder="Contenido"
+                      rows={2}
+                      className={inputClass}
+                    />
+                    <input
+                      value={n.date ?? ""}
+                      onChange={(e) => {
+                        const next = [...settings.news];
+                        next[i] = { ...next[i], date: e.target.value };
+                        set("news", next);
+                      }}
+                      placeholder="Fecha (opcional, ej: Marzo 2026)"
+                      className={inputClass}
+                    />
+
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-foreground/70">
+                        Imagen de la noticia (opcional). Al hacer click, el visitante la verá
+                        ampliada.
+                      </p>
+                      {n.image_url && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={n.image_url}
+                          alt={n.title || "Noticia"}
+                          className="w-full max-w-xs h-32 object-cover rounded-lg border border-gray-200 dark:border-purple-700/40"
+                        />
+                      )}
+                      <div className="flex items-center gap-2">
+                        <label
+                          htmlFor={`news-image-input-${i}`}
+                          className={`flex items-center justify-center gap-2 text-xs px-3 py-2 rounded-lg border-2 border-dashed cursor-pointer transition ${
+                            uploading === uploadKey
+                              ? "border-gray-300 dark:border-purple-700/40 opacity-60 cursor-wait"
+                              : "border-blue-400 dark:border-purple-500/60 text-blue-600 dark:text-purple-300 hover:bg-blue-50 dark:hover:bg-white/5"
+                          }`}
+                        >
+                          <FaUpload size={10} />
+                          {uploading === uploadKey ? "Subiendo..." : "Subir desde el dispositivo"}
+                        </label>
+                        <input
+                          id={`news-image-input-${i}`}
+                          type="file"
+                          accept="image/*"
+                          disabled={uploading === uploadKey}
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const url = await uploadImage(file, uploadKey);
+                            if (url) {
+                              const next = [...settings.news];
+                              next[i] = { ...next[i], image_url: url };
+                              set("news", next);
+                            }
+                            e.target.value = "";
+                          }}
+                        />
+                      </div>
+                      <input
+                        value={n.image_url ?? ""}
+                        onChange={(e) => {
+                          const next = [...settings.news];
+                          next[i] = { ...next[i], image_url: e.target.value };
+                          set("news", next);
+                        }}
+                        placeholder="...o pega una URL de imagen"
+                        className={inputClass}
+                      />
+                      {n.image_url && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = [...settings.news];
+                            next[i] = { ...next[i], image_url: "" };
+                            set("news", next);
+                          }}
+                          className="text-red-500 text-xs flex items-center gap-1"
+                        >
+                          <FaTrash size={10} /> Quitar imagen
+                        </button>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => set("news", settings.news.filter((_, idx) => idx !== i))}
+                      className="text-red-500 text-sm flex items-center gap-1"
+                    >
+                      <FaTrash size={11} /> Eliminar noticia
+                    </button>
+                  </div>
+                );
+              })}
 
               <button
                 onClick={() =>

@@ -35,6 +35,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     form_success: "¡Mensaje enviado!",
     form_error: "Error al enviar.",
     back_to_top: "Volver arriba",
+    news_expand_image: "Ampliar imagen de la noticia",
+    close_image: "Cerrar",
   },
   en: {
     theme_toggle: "Toggle theme",
@@ -52,6 +54,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     form_success: "Message sent!",
     form_error: "Something went wrong.",
     back_to_top: "Back to top",
+    news_expand_image: "Enlarge news image",
+    close_image: "Close",
   },
   pt: {
     theme_toggle: "Alternar tema",
@@ -69,6 +73,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     form_success: "Mensagem enviada!",
     form_error: "Erro ao enviar.",
     back_to_top: "Voltar ao topo",
+    news_expand_image: "Ampliar imagem da notícia",
+    close_image: "Fechar",
   },
   hi: {
     theme_toggle: "थीम बदलें",
@@ -86,6 +92,8 @@ export const TRANSLATIONS: Record<LangCode, Dict> = {
     form_success: "संदेश भेज दिया गया!",
     form_error: "भेजने में समस्या हुई।",
     back_to_top: "ऊपर जाएं",
+    news_expand_image: "समाचार की तस्वीर बड़ी करें",
+    close_image: "बंद करें",
   },
 };
 

@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence, type HTMLMotionProps } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { FaLink, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import { FaLink, FaEnvelope, FaPhoneAlt, FaTimes } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
 import LanguageSwitcher from "./components/LanguageSwitcher";
@@ -232,6 +232,19 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
   // (botones, formulario, etc.); el contenido que escribe el
   // administrador se muestra en el idioma en que fue escrito.
   const [lang, setLang] = useState<LangCode>("es");
+
+  // Imagen de noticia ampliada (lightbox): null = cerrada.
+  const [expandedNewsImage, setExpandedNewsImage] = useState<{ url: string; alt: string } | null>(
+    null
+  );
+  useEffect(() => {
+    if (!expandedNewsImage) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpandedNewsImage(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [expandedNewsImage]);
   useEffect(() => {
     // Se hace una sola vez al montar, para sincronizar con localStorage /
     // el idioma del navegador (no accesibles durante el render del
@@ -516,12 +529,41 @@ transition duration-300 rounded-xl p-4"
     </section>
   );
 
-  // Noticias: ya NO es una sección más del flujo vertical del home. Se
-  // muestra como una columna fija al costado derecho de la página (una
-  // tarjeta encima de otra), visible mientras se navega el sitio. Solo
-  // aparece en pantallas grandes (xl+) para no tapar el contenido en
-  // celular/tablet; ahí el visitante puede seguir viendo las noticias
-  // más abajo en el listado normal a través del footer si hiciera falta.
+  // Tarjeta de una noticia (se reutiliza tanto en la columna fija de
+  // escritorio como en el listado que aparece al final de las secciones
+  // en celular). Si tiene imagen, se puede hacer click para ampliarla.
+  function newsCard(n: SiteSettings["news"][number], i: number) {
+    return (
+      <div key={i} className="card !p-4">
+        {n.image_url && (
+          <button
+            type="button"
+            onClick={() => setExpandedNewsImage({ url: n.image_url as string, alt: n.title })}
+            className="block w-full mb-3 cursor-zoom-in"
+            aria-label={t("news_expand_image")}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={n.image_url}
+              alt={n.title}
+              className="w-full h-32 object-cover rounded-lg border border-card-border"
+            />
+          </button>
+        )}
+        <h3 className="text-base font-semibold text-brand">{n.title}</h3>
+        {n.date && <p className="text-xs text-foreground/55 mt-1">{n.date}</p>}
+        <p className="mt-2 text-sm text-foreground/85">{n.content}</p>
+      </div>
+    );
+  }
+
+  // Noticias: ya NO es una sección más del flujo vertical del home en
+  // escritorio. Ahí se muestra como una columna fija al costado derecho de
+  // la página (una tarjeta encima de otra), visible mientras se navega el
+  // sitio. En celular/tablet (por debajo de xl) esa columna se oculta y en
+  // su lugar la sección aparece al final, después de todas las demás
+  // secciones (ver newsMobileSection más abajo), para no tapar contenido
+  // en una pantalla angosta.
   const newsSidebar = (
     <aside
       id="news"
@@ -529,14 +571,20 @@ transition duration-300 rounded-xl p-4"
       className="hidden xl:flex fixed right-4 top-28 z-30 w-72 flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1"
     >
       <h2 className="text-lg font-bold text-foreground">{settings.news_title}</h2>
-      {settings.news.map((n, i) => (
-        <div key={i} className="card !p-4">
-          <h3 className="text-base font-semibold text-brand">{n.title}</h3>
-          {n.date && <p className="text-xs text-foreground/55 mt-1">{n.date}</p>}
-          <p className="mt-2 text-sm text-foreground/85">{n.content}</p>
-        </div>
-      ))}
+      {settings.news.map((n, i) => newsCard(n, i))}
     </aside>
+  );
+
+  // Versión para celular/tablet: mismas noticias, mostradas en el flujo
+  // normal de la página (una columna, al final de todas las secciones)
+  // en vez de flotando a un costado.
+  const newsMobileSection = (
+    <section id="news-mobile" className="px-8 py-20 max-w-6xl mx-auto xl:hidden">
+      <h2 className="title-section mb-12 text-center">{settings.news_title}</h2>
+      <div className="flex flex-col gap-6 max-w-md mx-auto">
+        {settings.news.map((n, i) => newsCard(n, i))}
+      </div>
+    </section>
   );
 
   const projectsSection = (
@@ -928,6 +976,11 @@ transition duration-300 rounded-xl p-4"
       {/* SECCIONES / MÓDULOS: orden y contenido 100% definidos desde el panel admin */}
       {renderedSections}
 
+      {/* NOTICIAS EN CELULAR/TABLET: en escritorio van en la columna fija
+          (newsSidebar, más arriba); acá, al final de todas las secciones,
+          para pantallas angostas donde esa columna se oculta. */}
+      {settings.show_news && settings.news.length > 0 && newsMobileSection}
+
       {/* FOOTER */}
       <footer
         className="mt-20 w-full py-10 px-6"
@@ -1009,6 +1062,31 @@ transition duration-300 rounded-xl p-4"
           </button>
         </div>
       </footer>
+
+      {/* LIGHTBOX: imagen de noticia ampliada a pantalla completa */}
+      {expandedNewsImage && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
+          onClick={() => setExpandedNewsImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setExpandedNewsImage(null)}
+            aria-label={t("close_image")}
+            title={t("close_image")}
+            className="fixed top-5 right-5 z-[110] p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition"
+          >
+            <FaTimes size={18} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={expandedNewsImage.url}
+            alt={expandedNewsImage.alt}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          />
+        </div>
+      )}
     </main>
   );
 }
