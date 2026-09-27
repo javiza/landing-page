@@ -8,7 +8,7 @@ import { FaLink, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 
 import BackgroundParticles from "./components/BackgroundParticles";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import GoogleTranslate from "./components/GoogleTranslate";
+import GoogleTranslate, { setGoogleTranslateLanguage } from "./components/GoogleTranslate";
 import { DEFAULT_SETTINGS, type SiteSettings } from "../types/settings";
 import { getIcon } from "../lib/icons";
 import { FONT_VAR } from "../lib/fonts";
@@ -239,14 +239,22 @@ export default function HomeClient({ settings }: { settings: SiteSettings }) {
     // derivado del render.
     try {
       const saved = window.localStorage.getItem(LANG_STORAGE_KEY) as LangCode | null;
+      const initial = saved ?? detectDefaultLanguage();
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLang(saved ?? detectDefaultLanguage());
+      setLang(initial);
+      if (settings.google_translate_enabled) setGoogleTranslateLanguage(initial);
     } catch {
-      setLang(detectDefaultLanguage());
+      const initial = detectDefaultLanguage();
+      setLang(initial);
+      if (settings.google_translate_enabled) setGoogleTranslateLanguage(initial);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   function changeLang(next: LangCode) {
     setLang(next);
+    // Si el traductor de Google está activo, la bandera también manda ahí:
+    // así el visitante no tiene que además abrir el selector de Google.
+    if (settings.google_translate_enabled) setGoogleTranslateLanguage(next);
     try {
       window.localStorage.setItem(LANG_STORAGE_KEY, next);
     } catch {

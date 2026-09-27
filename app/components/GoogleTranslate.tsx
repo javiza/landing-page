@@ -20,6 +20,32 @@ declare global {
   }
 }
 
+// Cambia el idioma del widget de Google desde afuera (por ejemplo, cuando
+// el visitante toca una bandera del selector propio). Internamente Google
+// arma un <select class="goog-te-combo"> oculto; cambiarle el valor y
+// disparar el evento "change" es la forma en que cualquier sitio controla
+// el widget de forma programática. Como el widget puede tardar unos
+// instantes en cargar/montarse, reintenta varias veces antes de rendirse.
+export function setGoogleTranslateLanguage(lang: string) {
+  const trySet = () => {
+    const combo = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+    if (combo && combo.value !== lang) {
+      combo.value = lang;
+      combo.dispatchEvent(new Event("change"));
+      return true;
+    }
+    return Boolean(combo);
+  };
+
+  if (trySet()) return;
+
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts += 1;
+    if (trySet() || attempts > 20) clearInterval(interval);
+  }, 300);
+}
+
 export default function GoogleTranslate({ pageLanguage = "es" }: { pageLanguage?: string }) {
   useEffect(() => {
     // Evita cargar el script dos veces si el componente se vuelve a montar.
